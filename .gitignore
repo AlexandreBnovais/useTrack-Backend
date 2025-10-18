@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+
+# Environment variables
+*.env
+
+# Dependency files (optional if using lockfile)
+package-lock.json
+
+# build development
+/dist
+
+# Database files and migrations
+prisma/database/
+prisma/migrations/
+
+/src/controllers/*
+/src/middlewares/*
+/src/repositories/*
+/src/service/*
