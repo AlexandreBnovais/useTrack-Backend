@@ -14,7 +14,5 @@ package-lock.json
 prisma/database/
 prisma/migrations/
 
-/src/controllers/*
-/src/middlewares/*
-/src/repositories/*
-/src/service/*
+# Google Client Scret
+/client_secret.json

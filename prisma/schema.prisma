@@ -17,10 +17,34 @@ model User {
     id        Int       @id @default(autoincrement())
     nome      String  
     email     String    @unique
-    password  String  
+    password  String
+    refreshToken RefreshToken[]
+    googleRefreshToken GoogleToken[]
     createdAt DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
     @@map("users")
+}
+
+model RefreshToken {
+    id Int @id @default(autoincrement())
+    token String 
+    expiry_date Int?
+    userEmail String @unique
+    user User @relation(fields: [userEmail], references: [email])
+    createdAt DateTime @default(now())
+}
+
+model GoogleToken {
+    id Int @id @default(autoincrement())
+    user User @relation(fields: [userId], references: [id])
+    userId Int @unique
+    refresh_token String
+    access_token String?
+    expiry_date Int?
+    token_type String?
+    id_token String?
+    scope String?
+
 }
 
 model Task {
