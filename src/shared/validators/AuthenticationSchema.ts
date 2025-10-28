@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 export const AuthenticationSchema = z.object({
-    id: z.number().int(),
-    nome: z.string(),
+    nome: z.string().normalize("NFC"),
     email: z.email({ pattern: z.regexes.email }),
     password: z
         .string()

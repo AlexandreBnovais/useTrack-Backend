@@ -1,71 +1,95 @@
 import type { Request, Response } from "express";
 import { AuthenticationService } from "../service/AuthenticationService.ts";
+import 'dotenv/config'
 
-export class AuthenticationController {
+class AuthenticationController {
     // Rota: POST /auth/login
     public async login(req: Request, res: Response) {
-        try {
-            const token = await AuthenticationService.AuthenticateUser(
-                req.body,
-            );
-
-            if (!token) {
-                return res
-                    .status(401)
-                    .json({ message: "Credenciais inválidas" });
+        try { 
+            const result = await AuthenticationService.AuthenticateUser(req.body);
+            if(!result.success) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: result.message,
+                    details: result.details
+                });
             }
 
-            return res.status(200).json({ accessToken: token });
-        } catch (err: any) {
+            res.cookie("refreshToken", result.refresh, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "Production",
+                sameSite: "strict"
+            })
+
+            return res.status(200).json({ 
+                success: true,
+                message: result.message,
+                accessToken: result.token,
+                refresh: result.refresh
+            });
+
+        }catch( err ) { 
             console.error(err);
-            return res
-                .status(500)
-                .json({ message: err.message || "Erro interno" });
+            res.status(500).json({ 
+                success: false,
+                message: err instanceof Error? err.message : "Erro interno no servidor"
+            });
         }
     }
 
     // Rota: POST /auth/register
     public async register(req: Request, res: Response) {
-        try {
-            const user = await AuthenticationService.RegistrationUser(req.body);
+        try { 
+            const result = await AuthenticationService.RegistrationUser(req.body);
 
-            if (!user) {
-                return res
-                    .status(400)
-                    .json({ message: "Erro ao criar usuário" });
+            if(result.error) { 
+                return res.status(400).json({ 
+                    success: false,
+                    message: result.message || "Erro de validação",
+                    details: result.details || null
+                });
             }
 
-            return res.status(201).json({
-                message: "Usuário criado com sucesso",
-                user: {
-                    id: user.id,
-                    nome: user.nome,
-                    email: user.email,
-                },
+            if(!result.success) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: result.message || "Erro ao criar usuario"
+                });
+            }
+
+            return res.status(201).json({ 
+                success: true,
+                message: "Usuario criado com sucesso",
+                user: result.user
             });
-        } catch (err: any) {
-            console.error(err);
-            return res
-                .status(500)
-                .json({ message: err.message || "Erro interno" });
+            
+        }catch(err: any) {
+            console.error("Erro no controller", err);
+            return res.status(500).json({ 
+                success: false,
+                message: err.message || "Erro interno no servidor"
+            });
         }
     }
 
     public async Refresh(req: Request, res: Response) {
         try {
-            const { refreshToken } = req.body;
-            if (!refreshToken) {
-                return res
-                    .status(400)
-                    .json({ message: "Refresh token é obrigatorio" });
+            const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+
+            const result = await AuthenticationService.RefreshAccessToken(refreshToken);
+            if(!result.success) {
+                return res.status(401).json(result);
             }
 
-            const newAccessToken =
-                await AuthenticationService.RefreshAccessToken(refreshToken);
-            return res.status(200).json({ accessToken: newAccessToken });
+            return res.status(200).json(result);
         } catch (err: any) {
             console.error(err);
-            res.status(401).json({ message: err.message || "Token invalido" });
+            return res.status(500).json({ 
+                success: false,
+                message: err instanceof Error? err.message : "Erro interno no servidor"
+            });
         }
     }
 }
+
+export default new AuthenticationController();

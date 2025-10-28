@@ -4,12 +4,12 @@ import { hashPassword } from "../../../shared/ultils/auth.ts";
 
 export class AuthenticationRepositorie {
     static async findUser(email: string) {
-        return await prisma.user.findUnique({ where: { email } });
+        return prisma.user.findUnique({ where: { email } });
     }
 
     static async createUser(data: Pick<User, "email" | "nome" | "password">) {
         try {
-            const user = await prisma.user.create({
+            const user = prisma.user.create({
                 data: {
                     nome: data.nome!,
                     email: data.email,
@@ -30,7 +30,7 @@ export class AuthenticationRepositorie {
         token: string,
         user: Pick<User, "email" | "id">,
     ) {
-        return await prisma.refreshToken.upsert({
+        return prisma.refreshToken.upsert({
             where: { userEmail: user.email },
             update: { token },
             create: {

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 import "dotenv/config";
 
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET!;
+const accessTokenSecret = process.env.ACESS_TOKEN_SECRET!;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET!;
 
 export async function hashPassword(password: string): Promise<string> {
@@ -25,10 +25,6 @@ export function generateAccessToken(payload: object) {
 
 export function generateRefreshToken(payload: object) {
     return JWT.sign(payload, refreshTokenSecret, { expiresIn: "7d" });
-}
-
-export function verityAccessToken(token: string) {
-    return JWT.verify(token, accessTokenSecret);
 }
 
 export function verifyToken(token: string, type: "access" | "refresh") {

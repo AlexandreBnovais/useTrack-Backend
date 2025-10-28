@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { index } from "../modules/Auth/controllers/index.ts";
+import Auth from '../modules/Auth/controllers/AuthenticateController.ts';
 
 export const route = Router();
 
-route.post("/login", index.Auth.login);
-route.post("/register", index.Auth.register);
-route.post("/refresh", index.Auth.Refresh);
+route.post("/auth/login", Auth.login);
+route.post("/auth/register", Auth.register);
+route.post("/auth/refresh", Auth.Refresh);
