@@ -1,15 +1,15 @@
-import type { User } from "../../../shared/contracts/AuthContract.ts";
+import type { User } from "../../../shared/domains/AuthContract.ts";
 import { prisma } from "../../../shared/libs/prisma.ts";
-import { hashPassword } from "../../../shared/ultils/auth.ts";
+import { hashPassword } from "../../../shared/utils/auth.ts";
 
-export class AuthenticationRepositorie {
-    static async findUser(email: string) {
-        return await prisma.user.findUnique({ where: { email } });
+export class AuthenticationRepository {
+    async findUser(email: string) {
+        return prisma.user.findUnique({ where: { email } });
     }
 
-    static async createUser(data: Pick<User, "email" | "nome" | "password">) {
+    async createUser(data: Pick<User, "email" | "nome" | "password">) {
         try {
-            const user = await prisma.user.create({
+            const user = prisma.user.create({
                 data: {
                     nome: data.nome!,
                     email: data.email,
@@ -26,11 +26,8 @@ export class AuthenticationRepositorie {
         }
     }
 
-    static async saveRefreshToken(
-        token: string,
-        user: Pick<User, "email" | "id">,
-    ) {
-        return await prisma.refreshToken.upsert({
+    async saveRefreshToken(token: string, user: Pick<User, "email" | "id">) {
+        return prisma.refreshToken.upsert({
             where: { userEmail: user.email },
             update: { token },
             create: {
@@ -40,7 +37,7 @@ export class AuthenticationRepositorie {
         });
     }
 
-    static async findRefreshToken(email: string) {
+    async findRefreshToken(email: string) {
         return prisma.refreshToken.findUnique({
             where: { userEmail: email },
             include: { user: true },

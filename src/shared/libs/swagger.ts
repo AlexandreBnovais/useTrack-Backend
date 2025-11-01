@@ -4,23 +4,22 @@ const doc = {
     info: {
         version: "3.0.0",
         title: "BACKEND API DOC",
-        description: "This is doc specific a API",
+        description: "This is an API specific document",
     },
     servers: [
         {
             uri: "localhost:8000",
-            description: "",
         },
     ],
     tags: [
         {
-            name: "",
-            descriptions: "",
+            name: "API",
+            descriptions: "API DOCUMENTO",
         },
     ],
     secureSchema: {
         type: "http",
-        scheme: "basic",
+        scheme: "bearer",
         in: "http",
     },
     components: {

@@ -18,8 +18,7 @@ model User {
     nome      String  
     email     String    @unique
     password  String
-    refreshToken RefreshToken[]
-    googleRefreshToken GoogleToken[]
+    refreshToken RefreshToken?
     createdAt DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
     @@map("users")
@@ -28,45 +27,35 @@ model User {
 model RefreshToken {
     id Int @id @default(autoincrement())
     token String 
-    expiry_date Int?
+    expiryDate Int?
     userEmail String @unique
     user User @relation(fields: [userEmail], references: [email])
     createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    @@map("refreshTokens")
 }
-
-model GoogleToken {
+model GoogleUser {
     id Int @id @default(autoincrement())
-    user User @relation(fields: [userId], references: [id])
-    userId Int @unique
-    refresh_token String
-    access_token String?
-    expiry_date Int?
-    token_type String?
-    id_token String?
-    scope String?
-
-}
-
-model Task {
-    id Int @id @default(autoincrement())
-    title String      
-    term  DateTime        
-    statuses Status[]
+    googleId String? @unique
+    name String?
+    email String? @unique
+    pictureUrl String?
+    googleRefreshToken GoogleRefreshToken?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    @@index([title])
-    @@map("tasks")    
+    
+    @@map("googleUsers")
 }
 
-model Status {
+model GoogleRefreshToken { 
     id Int @id @default(autoincrement())
-    state State 
-    task Task @relation(fields: [taskId], references: [id])
-    taskId Int @unique
-}
+    tokenId String @unique
+    refreshToken String 
+    userId Int @unique
+    googleUser GoogleUser? @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-enum State {
-    ACTIVE
-    PENDENT
-    FINALIZED
+    @@map("googleRefreshTokens")
 }
