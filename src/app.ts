@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import { route } from "./routes/web.ts";
 import swaggerUi from "swagger-ui-express";
-import swaggerDoc from '../swagger-output.json' with { type: 'json'}
+import { openapiSpecification } from "./shared/libs/swagger.ts";
 
 const app = express();
 
@@ -24,6 +24,6 @@ app.use(
     }),
 );
 app.use("/", route);
-app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 export { app };

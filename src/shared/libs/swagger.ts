@@ -1,7 +1,7 @@
-import swaggerAutogen from "swagger-autogen";
+import swaggerJsdoc from 'swagger-jsdoc';
 
-
-const doc = {
+const swaggerDefinition = {
+  openapi: "3.0.0", 
   info: {
     version: "3.0.0",
     title: "BACKEND API DOC",
@@ -49,7 +49,9 @@ const doc = {
   ],
 };
 
-const outputFile = "'../../../swagger-output.json'";
-const endpointsFiles = ["./src/routes/web.ts"];
+const options = {
+  swaggerDefinition,
+  apis: ['./src/routes/web.ts'], 
+};
 
-swaggerAutogen({ openapi: "3.0.0" })(outputFile, endpointsFiles, doc);
+export const openapiSpecification = swaggerJsdoc(options);
