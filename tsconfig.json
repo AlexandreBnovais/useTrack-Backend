@@ -19,6 +19,7 @@
     
     "strict": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,
     "composite": true,
@@ -27,6 +28,9 @@
     "moduleResolution": "nodenext"
   },
 
-    "include": ["src/**/*"]
+    "include": [
+        "src/**/*.ts",
+        "swagger-output.json"
+    ],
 
 }

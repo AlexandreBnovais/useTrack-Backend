@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
-    "scripts": {
+    "scripts": {    
         "test": "echo \"Error: no test specified\" && exit 1",
+        "swagger-autogen":"ts-node src/shared/libs/swagger.ts",
         "dev": "nodemon ./server.ts",
         "build": "npx prisma generate && npx tsc",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,json}\""

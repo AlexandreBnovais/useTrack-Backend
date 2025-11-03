@@ -3,6 +3,8 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import { route } from "./routes/web.ts";
+import swaggerUi from "swagger-ui-express";
+import swaggerDoc from '../swagger-output.json' with { type: 'json'}
 
 const app = express();
 
@@ -16,13 +18,12 @@ app.use(
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: [
-            "Content-Type",
-            "Authorization",
-            "Content-Type",
-            "application/json",
+            "Content-Type","Authorization",
+            "Content-Type","application/json",
         ],
     }),
 );
 app.use("/", route);
+app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 export { app };
