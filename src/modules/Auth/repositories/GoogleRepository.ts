@@ -24,24 +24,20 @@ export class GoogleRepository {
         return profile;
     }
 
-    async storeRefreshToken(
-        token: string,
-        userId: number,
-    ) {
-        try { 
+    async storeRefreshToken(token: string, userId: number) {
+        try {
             return prisma.googleRefreshToken.upsert({
                 where: { userId },
-                update: { refreshToken: token},
-                create: { 
+                update: { refreshToken: token },
+                create: {
                     refreshToken: token,
                     userId,
                     tokenId: crypto.randomUUID(),
                 },
             });
-        }catch( err ) {
+        } catch (err) {
             console.error("Error storing refresh token: ", err);
             throw err;
-        } 
-        
+        }
     }
 }

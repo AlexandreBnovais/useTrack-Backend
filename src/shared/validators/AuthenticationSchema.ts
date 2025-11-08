@@ -7,3 +7,9 @@ export const AuthenticationSchema = z.object({
         .string()
         .min(8, { message: "Senha deve ter no minimo 8 caracteres" }),
 });
+
+export const ValidationClientFields = z.object({
+    name: z.string().optional(),
+    email: z.email({ pattern: z.regexes.email }),
+    userId: z.int(),
+});

@@ -1,7 +1,11 @@
 import { Router, type Request, type Response } from "express";
 
-import Auth from '../modules/Auth/controllers/AuthenticateController.ts';
-import GoogleAuth from '../modules/Auth/controllers/GoogleController.ts';
+import Auth from "../modules/Auth/controllers/AuthenticateController.ts";
+import GoogleAuth from "../modules/Auth/controllers/GoogleController.ts";
+import { authenticateToken } from "../shared/middlewares/AuthMiddleware.ts";
+import clienteController from "../modules/clientes/controllers/clienteController.ts";
+import leadController from "../modules/Leads/controllers/leadController.ts";
+import followUpController from "../modules/followUps/controllers/followUpController.ts";
 
 export const route = Router();
 
@@ -149,7 +153,7 @@ route.post("/auth/refresh", (req: Request, res: Response) => {
  *       500:
  *         description: "Erro ao tentar iniciar autenticação com o Google"
  */
-route.get('/auth/google', (req: Request, res: Response) => {
+route.get("/auth/google", (req: Request, res: Response) => {
     GoogleAuth.getAuthorizationCode(req, res);
 });
 
@@ -185,6 +189,25 @@ route.get('/auth/google', (req: Request, res: Response) => {
  *       500:
  *         description: "Erro interno do servidor"
  */
-route.get('/auth/google/callback', (req: Request, res: Response) => {
+route.get("/auth/google/callback", (req: Request, res: Response) => {
     GoogleAuth.loginWithGoogle(req, res);
 });
+
+
+// CLIETE - Rotas CRUD
+route.post('/api/clientes', authenticateToken, clienteController.create);
+route.get('/api/clientes', authenticateToken, clienteController.list);
+route.get('/api/clientes/:id', authenticateToken, clienteController.getById);
+route.put('/api/clientes/:id', authenticateToken, clienteController.update);
+
+// LEAD - Rotas CRUD
+route.post('/api/leads', authenticateToken, leadController.create);
+route.get('/api/leads', authenticateToken, leadController.list);
+route.get('/api/leads/:id', authenticateToken, leadController.getById);
+route.put('/api/leads/:id', authenticateToken, leadController.update);
+route.put('/api/leads/:id/stage', authenticateToken, leadController.changeStage);
+route.delete('api/leads/:id', authenticateToken, leadController.delete);
+
+// FOLLOW UP - Rotas CRUD
+route.post('/api/leads/:leadId/followups', authenticateToken, followUpController.logAndSchedule);
+route.get('/api/leads/followups', authenticateToken, followUpController.listPending);

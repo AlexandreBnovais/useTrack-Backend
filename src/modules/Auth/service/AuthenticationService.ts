@@ -37,7 +37,7 @@ export class AuthenticationService {
                 };
             }
             //  Compare passwords
-            const isValid = await comparePassword(existUser.password, password);
+            const isValid = await comparePassword(existUser.password!, password);
             if (!isValid) {
                 return {
                     success: false,
@@ -46,7 +46,6 @@ export class AuthenticationService {
             }
             // Generate token and refresh token
             const payload = {
-                id: existUser.id,
                 email: existUser.email,
                 nome: existUser.nome,
             };
@@ -96,7 +95,7 @@ export class AuthenticationService {
             const createUser = await this.AuthRepository.createUser({
                 email,
                 nome,
-                password
+                password,
             });
 
             if (!createUser) {
@@ -110,7 +109,6 @@ export class AuthenticationService {
                 success: true,
                 message: "Usuario criado com sucesso",
                 user: {
-                    id: createUser.id,
                     nome: createUser.nome,
                     email: createUser.email,
                 },
@@ -141,7 +139,7 @@ export class AuthenticationService {
                 };
             }
 
-            const { email } = decoded as { email: string};
+            const { email } = decoded as { email: string };
 
             const tokenRecord =
                 await this.AuthRepository.findRefreshToken(email);
@@ -169,7 +167,6 @@ export class AuthenticationService {
 
             // Create token
             const payload = {
-                id: user.id,
                 nome: user.nome,
                 email: user.email,
             };

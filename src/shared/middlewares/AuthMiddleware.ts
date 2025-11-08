@@ -1,31 +1,40 @@
-import type { Request, Response } from "express";
-import JWT from "jsonwebtoken";
-import "dotenv/config";
+// src/middleware/auth.middleware.ts
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken'; 
+import 'dotenv/config';
 
-export function AuthenticationMiddleware(
-    req: Request,
-    res: Response,
-) {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader?.split(" ")[1];
+export interface AuthenticatedRequest<
+    TParams = {},
+    TResBody = any,
+    TReqBody = any,
+    TReqQuery = {}
+> extends Request<TParams, TResBody, TReqBody, TReqQuery> {
+    userId?: string;
+}
 
-    if (!token) {
-        res.status(401).json({ message: "Token não fornecido" });
-        return;
+export interface ListLeadsQuery {
+    stageId?: string;
+    sellerId?: string;
+}
+
+const JWT_SECRET = process.env.ACESS_TOKEN_SECRET || 'minha_secreta_padrao';
+
+export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers['authorization'];
+    // Espera-se "Bearer TOKEN"
+    const token = authHeader && authHeader.split(' ')[1]; 
+
+    if (token == null) {
+        return res.sendStatus(401); // Não autorizado
     }
 
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    if (!secret)
-        throw new Error(
-            "chave de segurança não encontrada nas variaveis de ambientes",
-        );
-
-    JWT.verify(token, secret, (err, decoded) => {
+    // Verifica e decodifica o token
+    jwt.verify(token, JWT_SECRET, (err, userPayload: any) => {
         if (err) {
-            res.status(403).json({ message: "Token invalido ou expirado" });
-            return;
+            return res.sendStatus(403); // Acesso proibido (token inválido/expirado)
         }
-
-        (req as any).user = decoded;
+        req.userId = userPayload.id; 
+        
+        next();
     });
-}
+};

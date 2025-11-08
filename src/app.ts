@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import { route } from "./routes/web.ts";
 import swaggerUi from "swagger-ui-express";
 import { openapiSpecification } from "./shared/libs/swagger.ts";
@@ -18,12 +18,14 @@ app.use(
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: [
-            "Content-Type","Authorization",
-            "Content-Type","application/json",
+            "Content-Type",
+            "Authorization",
+            "Content-Type",
+            "application/json",
         ],
     }),
 );
 app.use("/", route);
-app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 export { app };
