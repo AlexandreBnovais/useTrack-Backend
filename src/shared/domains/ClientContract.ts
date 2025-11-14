@@ -2,7 +2,7 @@ export interface CreateClientBody {
     email: string;
     name: string;
     contactName: string;
-    phone: string   
+    phone: string;
 }
 
 export interface UpdateClientBody {

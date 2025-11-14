@@ -1,8 +1,8 @@
 export interface CreateLeadBody {
-    title?: string;
+    title: string;
     value: number;
     sellerId: string;
-    clientId: string;
+    clientEmail: string;
     initialStageId: number;
 }
 

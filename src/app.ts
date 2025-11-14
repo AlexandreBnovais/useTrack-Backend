@@ -17,12 +17,7 @@ app.use(
         origin: "*",
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: [
-            "Content-Type",
-            "Authorization",
-            "Content-Type",
-            "application/json",
-        ],
+        allowedHeaders: ["Authorization", "Content-Type"],
     }),
 );
 app.use("/", route);

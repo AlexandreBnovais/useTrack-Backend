@@ -20,7 +20,7 @@ export async function comparePassword(
 // JWT TOKENS
 
 export function generateAccessToken(payload: object) {
-    return JWT.sign(payload, accessTokenSecret, { expiresIn: "15m" });
+    return JWT.sign(payload, accessTokenSecret, { expiresIn: "1h" });
 }
 
 export function generateRefreshToken(payload: object) {

@@ -75,6 +75,8 @@ model Client {
 
     // Relaciona 1:N entre clientes e leads
     leads Lead[]
+
+    @@map("clients")
 }
 
 model SalesFunnelStage { 
@@ -85,6 +87,8 @@ model SalesFunnelStage {
 
     // Relaciona 1:N entre clientes e leads
     leads Lead[]
+
+    @@map("salesFunnelStages")
 }
 
 model Lead { 
@@ -92,6 +96,7 @@ model Lead {
     title String
     value Float
     createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     // Relacionamento com vendedor (User) - 1:N
     seller User @relation(fields: [sellerId], references: [id])
@@ -110,6 +115,8 @@ model Lead {
 
     // Campo de controle: próximo follow-up
     nextFollowUpDate DateTime? 
+
+    @@map("leads")
 }
 
 model FollowUp { 
@@ -118,11 +125,14 @@ model FollowUp {
     data DateTime @default(now())
     isCompleted Boolean @default(false)
 
-    lead Lead @relation(fields: [leadId], references: [id])
+    lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
     leadId String     
 
     // Relacionamento com vendedor 
-    registeredBy User? @relation(fields: [registeredById], references: [id])
+    registeredBy User? @relation(fields: [registeredById], references: [id], onDelete: SetNull)
     registeredById String?
+
+    @@map("followups")
 }
+
     

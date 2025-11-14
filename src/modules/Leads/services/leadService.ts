@@ -1,5 +1,6 @@
+import { prisma } from "../../../shared/libs/prisma.ts";
 import { LeadRepository } from "../Repositories/leadRepository.ts";
-import type { Lead } from "@prisma/client";
+import type { Lead, PrismaClient } from "@prisma/client";
 
 type UpdateLeadInput = Partial<{
     title: string;
@@ -7,6 +8,8 @@ type UpdateLeadInput = Partial<{
     sellerId: string;
     clientId: string;
 }>;
+
+type TransactionClient = PrismaClient | any;
 
 export class LeadService {
     private repository: LeadRepository;
@@ -18,32 +21,51 @@ export class LeadService {
         title: string;
         value: number;
         sellerId: string;
-        clientId: string;
+        clientEmail: string;
         initialStageId: number;
     }): Promise<Lead> {
+        const { initialStageId, sellerId, clientEmail, ...restOfData } = data;
+
+        const client = await prisma.client.findUnique({
+            where: { email: clientEmail },
+        });
+        if (!client) {
+            throw new Error(
+                `Cliente com o email ${clientEmail} não encontrado.`,
+            );
+        }
+
+        const clientId = client.id;
+
+        const sellerExists = await prisma.user.count({
+            where: { id: sellerId },
+        });
+        if (sellerExists === 0) {
+            throw new Error(
+                `Vendedor com ID ${sellerId} não encontrado. Violação de Foreign Key.`,
+            );
+        }
+
+        const stageExists = await prisma.salesFunnelStage.count({
+            where: { id: initialStageId },
+        });
+        if (!stageExists) {
+            throw new Error(
+                `Estagio do funil com ID ${initialStageId} não existe. Violação de Foreign Key`,
+            );
+        }
+
         return await this.repository.create({
-            ...data,
-            stageId: data.initialStageId,
+            ...restOfData,
+            sellerId,
+            clientId,
+            stageId: initialStageId,
             nextFollowUpDate: null,
         });
     }
 
     async getLeads(stageId?: number, sellerId?: string) {
         return await this.repository.findAll(stageId, sellerId);
-    }
-
-    async changeStage(leadId: string, newStageId: number): Promise<Lead> {
-        const lead = await this.repository.findById(leadId);
-
-        if (!lead) {
-            throw new Error("Lead não encontrado.");
-        }
-
-        return this.repository.update(leadId, { stageId: newStageId });
-    }
-
-    async setNextFollowUpDate(leadId: string, nextDate: Date): Promise<Lead> {
-        return this.repository.update(leadId, { nextFollowUpDate: nextDate });
     }
 
     async getLeadById(id: string) {
@@ -65,5 +87,19 @@ export class LeadService {
     async deleteLead(id: string) {
         const deletedLead = await this.repository.delete(id);
         return deletedLead;
+    }
+
+    async changeStage(leadId: string, newStageId: number): Promise<Lead> {
+        const lead = await this.repository.findById(leadId);
+
+        if (!lead) {
+            throw new Error("Lead não encontrado.");
+        }
+
+        return this.repository.update(leadId, { stageId: newStageId });
+    }
+
+    async setNextFollowUpDate(leadId: string, nextDate: Date): Promise<Lead> {
+        return this.repository.update(leadId, { nextFollowUpDate: nextDate });
     }
 }

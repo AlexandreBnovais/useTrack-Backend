@@ -193,21 +193,29 @@ route.get("/auth/google/callback", (req: Request, res: Response) => {
     GoogleAuth.loginWithGoogle(req, res);
 });
 
-
 // CLIETE - Rotas CRUD
-route.post('/api/clientes', authenticateToken, clienteController.create);
-route.get('/api/clientes', authenticateToken, clienteController.list);
-route.get('/api/clientes/:id', authenticateToken, clienteController.getById);
-route.put('/api/clientes/:id', authenticateToken, clienteController.update);
+route.post("/api/clientes", authenticateToken, clienteController.create);
+route.get("/api/clientes", authenticateToken, clienteController.list);
+route.get("/api/clientes/:id", authenticateToken, clienteController.getById);
+route.put("/api/clientes/:id", authenticateToken, clienteController.update);
+route.delete("/api/clientes/:id", authenticateToken, clienteController.delete);
 
 // LEAD - Rotas CRUD
-route.post('/api/leads', authenticateToken, leadController.create);
-route.get('/api/leads', authenticateToken, leadController.list);
-route.get('/api/leads/:id', authenticateToken, leadController.getById);
-route.put('/api/leads/:id', authenticateToken, leadController.update);
-route.put('/api/leads/:id/stage', authenticateToken, leadController.changeStage);
-route.delete('api/leads/:id', authenticateToken, leadController.delete);
+route.post("/api/leads", authenticateToken, leadController.create);
+route.get("/api/leads", authenticateToken, leadController.list);
+route.get("/api/leads/:id", authenticateToken, leadController.getById);
+route.put("/api/leads/:id", authenticateToken, leadController.update);
+route.put(
+    "/api/leads/:id/stage",
+    authenticateToken,
+    leadController.changeStage,
+);
+route.delete("/api/leads/:id", authenticateToken, leadController.delete);
 
 // FOLLOW UP - Rotas CRUD
-route.post('/api/leads/:leadId/followups', authenticateToken, followUpController.logAndSchedule);
-route.get('/api/leads/followups', authenticateToken, followUpController.listPending);
+route.post(
+    "/api/leads/:leadId/followups",
+    authenticateToken,
+    followUpController.logAndSchedule,
+);
+route.get("/api/followups", authenticateToken, followUpController.listPending);

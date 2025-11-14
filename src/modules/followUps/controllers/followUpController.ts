@@ -1,19 +1,16 @@
 import type { Request, Response } from "express";
 import { FollowUpService } from "../services/followUpService.ts";
 import type { AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware.ts";
-
-interface LogInteractionBody {
-    interactionNotes: string;
-    nextActionDate: Date;
-    nextActionNotes: string;
-    registeredById: string;
-}
+import type { LogInteractionBody } from "../../../shared/domains/followupContract.ts";
 
 class FollowUpController {
     private followUpService: FollowUpService;
 
     constructor() {
         this.followUpService = new FollowUpService();
+
+        this.logAndSchedule = this.logAndSchedule.bind(this);
+        this.listPending = this.listPending.bind(this);
     }
 
     /**
@@ -27,12 +24,8 @@ class FollowUpController {
     ) {
         try {
             const { leadId } = req.params;
-            const {
-                interactionNotes,
-                nextActionDate,
-                nextActionNotes,
-            } = req.body;
-
+            const { interactionNotes, nextActionDate, nextActionNotes } =
+                req.body;
             const registeredById = req.userId;
 
             // Validação basica
@@ -59,7 +52,7 @@ class FollowUpController {
                     leadId,
                     registeredById,
                     interactionNotes,
-                    nextActionDate,
+                    nextDate,
                     nextActionNotes,
                 );
 
@@ -70,22 +63,32 @@ class FollowUpController {
             });
         } catch (err) {
             console.error("Erro ao registrar Follow-Up: ", err);
+
+            const errorMessage =
+                err instanceof Error ? err.message : "Erro interno ao servidor";
+
+            if (errorMessage.includes("Não encontrada")) {
+                return res.status(400).json({
+                    message: errorMessage,
+                });
+            }
+
             return res.status(500).json({
                 message: "Erro interno ao processar Follow-Up",
-                details:
-                    err instanceof Error
-                        ? err.message
-                        : "Erro interno ao servidor",
+                details: errorMessage,
             });
         }
     }
 
     async listPending(
-        req: Request<{ sellerId: string }>,
+        req: AuthenticatedRequest,
         res: Response,
     ): Promise<Response> {
         try {
-            const { sellerId } = req.params;
+            const sellerId = req.userId;
+            if(!sellerId) {
+                return res.status(401).json({message: 'Vendedor não autenticado'});
+            }
             const pendingFollowUps =
                 await this.followUpService.getPendingFollowUps(sellerId);
 
@@ -103,4 +106,4 @@ class FollowUpController {
     }
 }
 
-export default new FollowUpController()
+export default new FollowUpController();

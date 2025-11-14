@@ -1,4 +1,4 @@
-import type { Lead } from "@prisma/client";
+import type { Client, Lead, Prisma } from "@prisma/client";
 import { prisma } from "../../../shared/libs/prisma.ts";
 
 type CreateLeadData = Omit<Lead, "id" | "createdAt" | "updatedAt">;

@@ -1,7 +1,4 @@
-import type {
-    GoogleRefreshToken,
-    GoogleUser,
-} from "../../../shared/domains/AuthContract.ts";
+import type { GoogleUser } from "../../../shared/domains/AuthContract.ts";
 import { prisma } from "../../../shared/libs/prisma.ts";
 
 export class GoogleRepository {

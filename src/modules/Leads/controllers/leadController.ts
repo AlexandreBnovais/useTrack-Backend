@@ -5,7 +5,10 @@ import type {
     CreateLeadBody,
     UpdateLeadBody,
 } from "../../../shared/domains/leadContract.ts";
-import type { AuthenticatedRequest, ListLeadsQuery } from "../../../shared/middlewares/AuthMiddleware.ts";
+import type {
+    AuthenticatedRequest,
+    ListLeadsQuery,
+} from "../../../shared/middlewares/AuthMiddleware.ts";
 
 class LeadController {
     private leadService: LeadService;
@@ -23,52 +26,69 @@ class LeadController {
 
     // POST /api/leads
     // Cria uma nova lead
-    async create(req: AuthenticatedRequest<{}, {}, CreateLeadBody>, res: Response) {
+    async create(
+        req: AuthenticatedRequest<{}, {}, CreateLeadBody>,
+        res: Response,
+    ) {
         try {
-            const { title, value, clientId, initialStageId } =
-                req.body;
+            const { title, value, clientEmail, initialStageId } = req.body;
 
             const sellerId = req.userId;
 
-            if(!sellerId) {
-                return res.status(401).json({ 
-                    message: "Vendedor não autenticado."
-                })
+            if (!sellerId) {
+                return res.status(401).json({
+                    message: "Vendedor não autenticado.",
+                });
             }
 
-            if (!title || !clientId) {
-                return res
-                    .status(400)
-                    .json({ message: "Dados obrigatorios faltando" });
+            if (!title || !clientEmail || !initialStageId) {
+                return res.status(400).json({
+                    message: `Dados obrigatorios faltando ${title || clientEmail || initialStageId}. `,
+                });
             }
 
             const newLead = await this.leadService.createLead({
-                clientId,
-                sellerId: sellerId,
                 title,
                 value,
+                sellerId: sellerId,
+                clientEmail,
                 initialStageId,
             });
 
             return res.status(201).json(newLead);
         } catch (err) {
             console.error("Erro ao criar Lead: ", err);
+            const errorMessage =
+                err instanceof Error ? err.message : "Erro interno ao servidor";
+            if (
+                errorMessage.includes("não encontrado") ||
+                errorMessage.includes("não existe")
+            ) {
+                return res.status(400).json({
+                    message: errorMessage,
+                });
+            }
             return res.status(500).json({
                 message: "Erro interno ao criar Lead.",
-                details:
-                    err instanceof Error
-                        ? err.message
-                        : "Erro interno ao servidor",
+                details: errorMessage,
             });
         }
     }
 
-    async list(req: AuthenticatedRequest<{}, {}, {}, ListLeadsQuery>, res: Response): Promise<Response> {
+    async list(
+        req: AuthenticatedRequest<{}, {}, {}, ListLeadsQuery>,
+        res: Response,
+    ): Promise<Response> {
         try {
             const stageId = req.query.stageId
                 ? parseInt(req.query.stageId as string)
                 : undefined;
             const sellerId = req.userId;
+            if (!sellerId) {
+                return res
+                    .status(401)
+                    .json({ message: "Usuario não autenticado" });
+            }
 
             const leads = await this.leadService.getLeads(stageId, sellerId);
             return res.status(200).json(leads);
@@ -88,33 +108,6 @@ class LeadController {
      * PUT /api/leads/:id/stage
      * Atualiza o estagio de um lead
      */
-
-    async changeStage(
-        req: Request<{ id: string }, {}, changeStageBody>,
-        res: Response,
-    ): Promise<Response> {
-        try {
-            const { id } = req.params;
-            const { newStageId } = req.body;
-
-            if (!newStageId) {
-                return res
-                    .status(400)
-                    .json({ message: "O ID do novo estágio é obrigatorio." });
-            }
-            const updateLead = await this.leadService.changeStage(
-                id,
-                newStageId,
-            );
-
-            return res.status(200).json(updateLead);
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({
-                message: "Erro interno ao mudar estagio",
-            });
-        }
-    }
 
     /**
      * GET /api/leads/:id
@@ -212,6 +205,34 @@ class LeadController {
             return res.status(500).json({
                 message: "Erro interno ao deletar Lead.",
                 details: err.message,
+            });
+        }
+    }
+
+    async changeStage(
+        req: Request<{ id: string }, {}, changeStageBody>,
+        res: Response,
+    ): Promise<Response> {
+        try {
+            const { id } = req.params;
+            const { newStageId } = req.body;
+
+            if (!newStageId) {
+                return res
+                    .status(400)
+                    .json({ message: "O ID do novo estágio é obrigatorio." });
+            }
+
+            const updateLead = await this.leadService.changeStage(
+                id,
+                newStageId,
+            );
+
+            return res.status(200).json(updateLead);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "Erro interno ao mudar estagio",
             });
         }
     }

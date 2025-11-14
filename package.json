@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "seeds": "ts-node ./src/teste/seads.ts",
         "swagger-autogen": "ts-node src/shared/libs/swagger.ts",
         "dev": "nodemon ./server.ts",
         "build": "npx prisma generate && npx tsc",

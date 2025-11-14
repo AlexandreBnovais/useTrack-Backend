@@ -1,18 +1,32 @@
 import { prisma } from "../../../shared/libs/prisma.ts";
-import type { FollowUp } from "@prisma/client";
+import type { FollowUp, PrismaClient } from "@prisma/client";
+
+type TransactionClient =
+    | PrismaClient
+    | Omit<
+          PrismaClient,
+          | "$connect"
+          | "$disconnect"
+          | "$on"
+          | "$transaction"
+          | "$use"
+          | "$extends"
+      >;
 
 type CreateFollowUpData = {
     notes: string;
     leadId: string;
     registeredById?: string;
     isCompleted: boolean;
-
-    date: Date;
+    data: Date;
 };
 
 export class FollowUpRepository {
-    async create(data: CreateFollowUpData): Promise<FollowUp> {
-        return prisma.followUp.create({
+    async create(
+        data: CreateFollowUpData,
+        txClient: TransactionClient = prisma,
+    ): Promise<FollowUp> {
+        return txClient.followUp.create({
             data,
             include: { lead: true },
         });
@@ -34,8 +48,8 @@ export class FollowUpRepository {
         });
     }
 
-    async complete(id: string): Promise<FollowUp> {
-        return prisma.followUp.update({
+    async complete(id: string, txClient: TransactionClient): Promise<FollowUp> {
+        return txClient.followUp.update({
             where: { id },
             data: { isCompleted: true },
         });

@@ -1,6 +1,7 @@
 import { FollowUpRepository } from "../repositories/followupRepository.ts";
 import { LeadService } from "../../Leads/services/leadService.ts";
 import type { FollowUp } from "@prisma/client";
+import { prisma } from "../../../shared/libs/prisma.ts";
 
 export class FollowUpService {
     private repository: FollowUpRepository;
@@ -18,24 +19,55 @@ export class FollowUpService {
         nextActionDate: Date,
         nextActionNotes: string,
     ): Promise<{ log: FollowUp; next: FollowUp }> {
-        const interactionLog = await this.repository.create({
-            leadId,
-            registeredById,
-            notes: `[INTERAÇÃO REALIZADA] ${interactionNotes}`,
-            date: new Date(),
-            isCompleted: true,
-        });
+        const lead = await this.leadService.getLeadById(leadId);
+        if (!lead) {
+            throw new Error(`Lead com ID ${leadId} não encontrado.`);
+        }
 
-        const nextFollowUp = await this.repository.create({
-            leadId,
-            registeredById,
-            notes: `[PROXIMA AÇÃO] ${nextActionDate}`,
-            date: nextActionDate,
-            isCompleted: false,
+        const sellerExists = await prisma.user.count({
+            where: { id: registeredById },
         });
+        if (sellerExists === 0) {
+            throw new Error(
+                `Vendedor com ID ${registeredById} não encontrado.`,
+            );
+        }
 
-        await this.leadService.setNextFollowUpDate(leadId, nextActionDate);
-        return { log: interactionLog, next: nextFollowUp };
+        try {
+            const result = await prisma.$transaction(async (tx) => {
+                const interactionLog = await tx.followUp.create({
+                    data: {
+                        leadId,
+                        registeredById,
+                        notes: `[INTERAÇÃO REALIZADA] ${interactionNotes}`,
+                        data: new Date(),
+                        isCompleted: true,
+                    },
+                });
+
+                const nextFollowUp = await tx.followUp.create({
+                    data: {
+                        leadId,
+                        registeredById,
+                        notes: `[PRÓXIMA AÇÃO] ${nextActionNotes}`,
+                        data: nextActionDate,
+                        isCompleted: false,
+                    },
+                });
+
+                await tx.lead.update({
+                    where: { id: leadId },
+                    data: { nextFollowUpDate: nextActionDate },
+                });
+
+                return { log: interactionLog, next: nextFollowUp };
+            });
+
+            return result;
+        } catch (error) {
+            console.error("Transação de FollowUp falhou: ", error);
+            throw new Error("Falha ao registrar follow-up e atualizar lead.");
+        }
     }
 
     async getPendingFollowUps(sellerId: string): Promise<FollowUp[]> {

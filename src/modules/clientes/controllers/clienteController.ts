@@ -1,8 +1,10 @@
 // src/modules/clients/client.controller.ts
 import type { Request, Response } from "express";
 import { ClientService } from "../services/clientService.ts";
-import type { CreateClientBody, UpdateClientBody } from "../../../shared/domains/ClientContract.ts";
-
+import type {
+    CreateClientBody,
+    UpdateClientBody,
+} from "../../../shared/domains/ClientContract.ts";
 
 class ClientController {
     private clientService: ClientService;
@@ -10,6 +12,7 @@ class ClientController {
     constructor() {
         this.clientService = new ClientService();
         // **Binding** dos métodos
+        this.create = this.create.bind(this);
         this.list = this.list.bind(this);
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
@@ -20,25 +23,28 @@ class ClientController {
      * POST /api/clients
      * Cria clientes
      */
-    async create(req: Request<{}, {}, CreateClientBody>, res: Response): Promise<Response> {
+    async create(
+        req: Request<{}, {}, CreateClientBody>,
+        res: Response,
+    ): Promise<Response> {
         try {
-            const { email, name, contactName, phone} = req.body;
-    
-            if(!email || !name ) {
+            const { email, name, contactName, phone } = req.body;
+
+            if (!email || !name) {
                 return res.status(400).json({
-                    message: 'Dados obrigatorios faltando'
+                    message: "Dados obrigatorios faltando",
                 });
             }
-    
+
             const newClient = await this.clientService.createClient({
                 name,
                 email,
                 phone,
                 contactName,
             });
-    
+
             return res.status(201).json(newClient);
-        }catch(err) { 
+        } catch (err) {
             console.error("Erro ao listar clientes:", err);
             return res.status(500).json({
                 message: "Erro interno ao listar clientes.",
@@ -172,4 +178,4 @@ class ClientController {
     }
 }
 
-export default new ClientController()
+export default new ClientController();
