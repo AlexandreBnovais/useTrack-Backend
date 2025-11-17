@@ -10,11 +10,9 @@ export class GoogleAuthService {
     private GoogleRepository: GoogleRepository;
 
     constructor(
-        GoogleClient: GoogleAuthClient,
-        GoogleRepository: GoogleRepository,
     ) {
-        this.GoogleClient = GoogleClient;
-        this.GoogleRepository = GoogleRepository;
+        this.GoogleClient = new GoogleAuthClient();
+        this.GoogleRepository = new GoogleRepository();
     }
 
     redirectUrl() {
@@ -64,10 +62,15 @@ export class GoogleAuthService {
 
             const { email, name } = userInfo;
 
+            if(!email || !name) { throw new Error( 'Missing fields: name and email required')};
+
             const user = await this.GoogleRepository.findOrCreate({
-                email: email,
-                name: name!,
-            });
+                email, name
+            });     
+
+            if(!user) { 
+                throw new Error('Usuario já cadastrado')
+            }
 
             const payload = {
                 id: user.id,

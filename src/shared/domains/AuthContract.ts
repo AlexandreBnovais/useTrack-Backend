@@ -6,11 +6,11 @@ export interface User {
 }
 
 export interface GoogleUser {
-    id?: number;
-    googleId?: string;
+    id: number;
+    googleId: string;
     name: string;
     email: string;
-    pictureUrl?: string;
+    pictureUrl: string;
     googleRefreshToken: string;
 }
 

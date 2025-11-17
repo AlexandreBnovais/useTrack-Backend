@@ -42,10 +42,9 @@ model RefreshToken {
     @@map("refreshTokens")
 }
 model GoogleUser {
-    id Int @id @default(autoincrement())
-    googleId String? @unique
-    name String?
-    email String? @unique
+    id String @id @default(uuid())
+    name String
+    email String @unique
     pictureUrl String?
     googleRefreshToken GoogleRefreshToken?
     createdAt DateTime @default(now())
@@ -58,7 +57,7 @@ model GoogleRefreshToken {
     id Int @id @default(autoincrement())
     tokenId String @unique
     refreshToken String 
-    userId Int @unique
+    userId String @unique
     googleUser GoogleUser? @relation(fields: [userId], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

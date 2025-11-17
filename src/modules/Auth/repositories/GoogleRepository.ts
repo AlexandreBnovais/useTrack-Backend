@@ -1,8 +1,10 @@
-import type { GoogleUser } from "../../../shared/domains/AuthContract.ts";
+import type { GoogleUser } from "@prisma/client";
 import { prisma } from "../../../shared/libs/prisma.ts";
 
+type GoogleUserinput = Omit<GoogleUser, "id" | "updatedAt" | "createdAt" | "pictureUrl">;
+
 export class GoogleRepository {
-    async findOrCreate(user: Pick<GoogleUser, "email" | "name">) {
+    async findOrCreate(user: GoogleUserinput) {
         const { email, name } = user;
 
         let profile = await prisma.googleUser.findUnique({
@@ -21,7 +23,7 @@ export class GoogleRepository {
         return profile;
     }
 
-    async storeRefreshToken(token: string, userId: number) {
+    async storeRefreshToken(token: string, userId: string) {
         try {
             return prisma.googleRefreshToken.upsert({
                 where: { userId },
