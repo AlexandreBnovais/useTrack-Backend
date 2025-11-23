@@ -1,5 +1,5 @@
-import { prisma } from "../../../shared/libs/prisma.ts";
-import { ClientRepository } from "../repositories/clientRepository.ts";
+import { prisma } from "../../../shared/libs/prisma.js";
+import { ClientRepository } from "../repositories/clientRepository.js";
 import type { Client } from "@prisma/client";
 
 type UpdateClientInput = Partial<{

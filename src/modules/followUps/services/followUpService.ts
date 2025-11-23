@@ -1,7 +1,7 @@
-import { FollowUpRepository } from "../repositories/followupRepository.ts";
-import { LeadService } from "../../Leads/services/leadService.ts";
+import { FollowUpRepository } from "../repositories/followupRepository.js";
+import { LeadService } from "../../Leads/services/leadService.js";
 import type { FollowUp } from "@prisma/client";
-import { prisma } from "../../../shared/libs/prisma.ts";
+import { prisma } from "../../../shared/libs/prisma.js";
 
 export class FollowUpService {
     private repository: FollowUpRepository;

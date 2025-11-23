@@ -1,11 +1,12 @@
+import { prisma } from "../../../shared/libs/prisma.js";
 import {
     comparePassword,
     generateAccessToken,
     generateRefreshToken,
     verifyToken,
-} from "../../../shared/utils/auth.ts";
-import { AuthenticationSchema } from "../../../shared/validators/AuthenticationSchema.ts";
-import { AuthenticationRepository } from "../repositories/AuthenticateRepository.ts";
+} from "../../../shared/utils/auth.js";
+import { AuthenticationSchema } from "../../../shared/validators/AuthenticationSchema.js";
+import { AuthenticationRepository } from "../repositories/AuthenticateRepository.js";
 
 export class AuthenticationService {
     private AuthRepository: AuthenticationRepository;
@@ -177,5 +178,13 @@ export class AuthenticationService {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,
         };
+    }
+
+    async deleteRefreshToken(token: string): Promise<void> {
+        await prisma.refreshToken.deleteMany({ 
+            where: {
+                token: token,
+            }
+        })
     }
 }

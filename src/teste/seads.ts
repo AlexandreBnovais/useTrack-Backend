@@ -1,4 +1,4 @@
-import { prisma } from "../shared/libs/prisma.ts";
+import { prisma } from "../shared/libs/prisma.js";
 
 const FunnelStages = [
     { id: 1, name: "Prospecção", order: 1, isClosed: false },

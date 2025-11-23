@@ -1,17 +1,14 @@
 import type { Request, Response } from "express";
-import { GoogleAuthService } from "../service/GoogleService.ts";
-import { GoogleRepository } from "../repositories/GoogleRepository.ts";
-import { GoogleAuthClient } from "../../../shared/utils/googleAuth.ts";
+import { GoogleAuthService } from "../service/GoogleService.js";
 
 class GoogleAuthController {
     private serviceAuthGoogle: GoogleAuthService;
     constructor() {
-        const googleRepository = new GoogleRepository();
-        const googleClient = new GoogleAuthClient();
-        this.serviceAuthGoogle = new GoogleAuthService(
-            googleClient,
-            googleRepository,
-        );
+        this.serviceAuthGoogle = new GoogleAuthService();
+
+        this.getAuthorizationCode = this.getAuthorizationCode.bind(this);
+        this.loginWithGoogle = this.loginWithGoogle.bind(this);
+        this.googleLogout = this.googleLogout.bind(this);
     }
     getAuthorizationCode(req: Request, res: Response) {
         try {
@@ -65,6 +62,22 @@ class GoogleAuthController {
                 success: false,
                 message: "Google authenticate falied",
             });
+        }
+    }
+
+    async googleLogout(req: Request, res: Response): Promise<Response> {
+        const { refreshToken } = req.body;
+
+        if(!refreshToken) {
+            return res.status(400).json({ message: "Refresh token obrigatorio."});
+        }
+
+        try {
+            await this.serviceAuthGoogle.deleteRefreshToken(refreshToken);
+            return res.status(204).send();
+        }catch(error) {
+            console.error("Erro no logout: ", error);
+            return res.status(500).json({ message: "Falha ao processar logout."});
         }
     }
 }

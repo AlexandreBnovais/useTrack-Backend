@@ -1,5 +1,5 @@
-import { prisma } from "../../../shared/libs/prisma.ts";
-import { LeadRepository } from "../Repositories/leadRepository.ts";
+import { prisma } from "../../../shared/libs/prisma.js";
+import { LeadRepository } from "../Repositories/leadRepository.js";
 import type { Lead, PrismaClient } from "@prisma/client";
 
 type UpdateLeadInput = Partial<{

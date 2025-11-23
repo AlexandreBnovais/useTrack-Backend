@@ -1,7 +1,10 @@
 import type { GoogleUser } from "@prisma/client";
-import { prisma } from "../../../shared/libs/prisma.ts";
+import { prisma } from "../../../shared/libs/prisma.js";
 
-type GoogleUserinput = Omit<GoogleUser, "id" | "updatedAt" | "createdAt" | "pictureUrl">;
+type GoogleUserinput = Omit<
+    GoogleUser,
+    "id" | "updatedAt" | "createdAt" | "pictureUrl"
+>;
 
 export class GoogleRepository {
     async findOrCreate(user: GoogleUserinput) {

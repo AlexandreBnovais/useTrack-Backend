@@ -1,16 +1,16 @@
+import { prisma } from "../../../shared/libs/prisma.js";
 import {
     generateAccessToken,
     generateRefreshToken,
-} from "../../../shared/utils/auth.ts";
-import { GoogleAuthClient } from "../../../shared/utils/googleAuth.ts";
-import { GoogleRepository } from "../repositories/GoogleRepository.ts";
+} from "../../../shared/utils/auth.js";
+import { GoogleAuthClient } from "../../../shared/utils/googleAuth.js";
+import { GoogleRepository } from "../repositories/GoogleRepository.js";
 
 export class GoogleAuthService {
     private GoogleClient: GoogleAuthClient;
     private GoogleRepository: GoogleRepository;
 
-    constructor(
-    ) {
+    constructor() {
         this.GoogleClient = new GoogleAuthClient();
         this.GoogleRepository = new GoogleRepository();
     }
@@ -62,14 +62,17 @@ export class GoogleAuthService {
 
             const { email, name } = userInfo;
 
-            if(!email || !name) { throw new Error( 'Missing fields: name and email required')};
+            if (!email || !name) {
+                throw new Error("Missing fields: name and email required");
+            }
 
             const user = await this.GoogleRepository.findOrCreate({
-                email, name
-            });     
+                email,
+                name,
+            });
 
-            if(!user) { 
-                throw new Error('Usuario já cadastrado')
+            if (!user) {
+                throw new Error("Usuario já cadastrado");
             }
 
             const payload = {
@@ -104,5 +107,13 @@ export class GoogleAuthService {
                         : "Internal server Error",
             };
         }
+    }
+
+    async deleteRefreshToken(token: string): Promise<void> {
+        await prisma.googleRefreshToken.deleteMany({ 
+            where: {
+                tokenId: token
+            }
+        })
     }
 }

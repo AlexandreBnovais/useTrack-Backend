@@ -1,6 +1,6 @@
 // src/modules/clients/client.controller.ts
 import type { Request, Response } from "express";
-import { ClientService } from "../services/clientService.ts";
+import { ClientService } from "../services/clientService.js";
 import type {
     CreateClientBody,
     UpdateClientBody,

@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { AuthenticationService } from "../service/AuthenticationService.ts";
-import { AuthenticationRepository } from "../repositories/AuthenticateRepository.ts";
+import { AuthenticationService } from "../service/AuthenticationService.js";
+import { AuthenticationRepository } from "../repositories/AuthenticateRepository.js";
 import "dotenv/config";
 
 class AuthenticationController {
@@ -8,6 +8,11 @@ class AuthenticationController {
     constructor() {
         const userRepository = new AuthenticationRepository();
         this.AuthService = new AuthenticationService(userRepository);
+        
+        this.login = this.login.bind(this);
+        this.register = this.register.bind(this);
+        this.Refresh = this.Refresh.bind(this);
+        this.logout = this.logout.bind(this);
     }
     // Rota: POST /auth/login
     async login(req: Request, res: Response) {
@@ -101,6 +106,24 @@ class AuthenticationController {
                         ? err.message
                         : "Erro interno no servidor",
             });
+        }
+    }
+
+    async logout( req: Request, res: Response ): Promise<Response> {
+        
+        const { refreshToken } = req.cookies;
+
+        if(!refreshToken) {
+            return res.status(400).json({ message: "Refresh token obrigatório." });
+        }
+        
+        try {
+            await this.AuthService.deleteRefreshToken(refreshToken);
+            return res.status(204).send();
+
+        }catch(error) {
+            console.error("Erro ao logout", error);
+            return res.status(500).json({ message: "Falha ao processar logout"});
         }
     }
 }

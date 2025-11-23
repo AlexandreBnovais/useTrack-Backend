@@ -3,8 +3,9 @@
   "display": "Node 24",
   "_version": "24.0.0",
   "compilerOptions": {
-    "rootDir": "./",
-    "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./build",
+    "baseUrl": "./src",
 
     "lib": [
       "es2024",
@@ -20,9 +21,6 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
-    "composite": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "moduleResolution": "nodenext"
@@ -31,5 +29,6 @@
     "include": [
         "src/**/*.ts",
     ],
+    "exclude": ["node_modules", "dist"]
 
 }

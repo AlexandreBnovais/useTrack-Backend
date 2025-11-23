@@ -4,11 +4,8 @@ node_modules/
 # Environment variables
 *.env
 
-# Dependency files (optional if using lockfile)
+# Dependency files 
 package-lock.json
-
-# build development
-/dist
 
 # Database files and migrations
 prisma/database/
@@ -16,3 +13,12 @@ prisma/migrations/
 
 # Google Client Scret
 /client_secret.json
+
+#EditorConfig
+editorconfig
+
+#ESLint Ignore
+eslint.config.mts
+
+# Build files
+build/

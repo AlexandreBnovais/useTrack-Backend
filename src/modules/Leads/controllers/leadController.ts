@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { LeadService } from "../services/leadService.ts";
+import { LeadService } from "../services/leadService.js";
 import type {
     changeStageBody,
     CreateLeadBody,

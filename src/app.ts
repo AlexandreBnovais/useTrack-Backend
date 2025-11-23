@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import { route } from "./routes/web.ts";
+import { route } from "./routes/web.js";
 import swaggerUi from "swagger-ui-express";
-import { openapiSpecification } from "./shared/libs/swagger.ts";
+import { openapiSpecification } from "./shared/libs/swagger.js";
 
 const app = express();
 
@@ -21,6 +21,6 @@ app.use(
     }),
 );
 app.use("/", route);
-app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+app.use("/doc", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 export { app };

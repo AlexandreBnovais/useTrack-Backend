@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { FollowUpService } from "../services/followUpService.ts";
+import { FollowUpService } from "../services/followUpService.js";
 import type { AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware.ts";
 import type { LogInteractionBody } from "../../../shared/domains/followupContract.ts";
 
@@ -86,8 +86,10 @@ class FollowUpController {
     ): Promise<Response> {
         try {
             const sellerId = req.userId;
-            if(!sellerId) {
-                return res.status(401).json({message: 'Vendedor não autenticado'});
+            if (!sellerId) {
+                return res
+                    .status(401)
+                    .json({ message: "Vendedor não autenticado" });
             }
             const pendingFollowUps =
                 await this.followUpService.getPendingFollowUps(sellerId);
