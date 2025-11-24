@@ -4,11 +4,9 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "node ./build/server.js",
-        "seeds": "node ./build/teste/seads.js",
-        "build": "npx prisma generate && npx tsc",
-        "migrate": "prisma migrate deploy",
-        "generate": "prisma generate",
+        "start": "node ./build/server.js",
+        "seed": "node ./build/teste/seads.js",
+        "build": "tsc",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,json}\""
     },
     "keywords": [],

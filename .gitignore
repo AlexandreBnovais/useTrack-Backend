@@ -9,7 +9,6 @@ package-lock.json
 
 # Database files and migrations
 prisma/database/
-prisma/migrations/
 
 # Google Client Scret
 /client_secret.json
