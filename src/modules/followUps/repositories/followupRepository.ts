@@ -33,15 +33,17 @@ export class FollowUpRepository {
     }
 
     async findPendingBySeller(sellerId: string): Promise<FollowUp[]> {
+
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+
         return prisma.followUp.findMany({
             where: {
                 isCompleted: false,
-                lead: {
-                    sellerId: sellerId,
+                data: { 
+                    lte: endOfToday
                 },
-                data: {
-                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                },
+                registeredById: sellerId
             },
             include: { lead: { include: { client: true } } },
             orderBy: { data: "asc" },

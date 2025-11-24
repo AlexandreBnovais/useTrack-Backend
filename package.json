@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "node ./dist/server.js",
+        "dev": "node ./build/server.js",
+        "seeds": "node ./build/teste/seads.js",
         "build": "npx prisma generate && npx tsc",
         "migrate": "prisma migrate deploy",
         "generate": "prisma generate",

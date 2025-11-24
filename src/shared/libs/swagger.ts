@@ -207,7 +207,17 @@ const swaggerDefinition = {
                         required: true,
                         content: {
                             "application/json": {
-                                schema: { $ref: "#/components/schemas/Client" },
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        id: { type: "string" },
+                                        name: { type: "string" },
+                                        email: { type: "string" },
+                                        phone: { type: "string" },
+                                        contactName: { type: "string" },
+                                    },
+                                    required: ["id", "name", "email"],
+                                },
                             },
                         },
                     },
@@ -252,7 +262,14 @@ const swaggerDefinition = {
                         content: {
                             "application/json": {
                                 schema: {
-                                    $ref: "#/components/schemas/CreateLeadBody",
+                                    type: "object",
+                                    properties: {
+                                        title: { type: "object" },
+                                        value: { type: "number" },
+                                        clientEmail: { type: "string", format: "email" },
+                                        initialStageId: { type: "integer" },
+                                    },
+                                    required: ["title", "clientEmail", "initialStageId"],
                                 },
                             },
                         },
@@ -290,7 +307,11 @@ const swaggerDefinition = {
                         content: {
                             "application/json": {
                                 schema: {
-                                    $ref: "#/components/schemas/ChangeStageBody",
+                                    type: "object",
+                                    properties: {
+                                        newStageId: { type: "integer" },
+                                    },
+                                    required: ["newStageId"],
                                 },
                             },
                         },
@@ -308,7 +329,17 @@ const swaggerDefinition = {
                         content: {
                             "application/json": {
                                 schema: {
-                                    $ref: "#/components/schemas/LogInteractionBody",
+                                    type: "object",
+                                    properties: {
+                                        interactionNotes: { type: "string" },
+                                        nextActionDate: { type: "string", format: "date-time" },
+                                        nextActionNotes: { type: "string" },
+                                    },
+                                    required: [
+                                        "interactionNotes",
+                                        "nextActionDate",
+                                        "nextActionNotes",
+                                    ],
                                 },
                             },
                         },
@@ -316,11 +347,36 @@ const swaggerDefinition = {
                 },
             },
 
-            "/api/followups": {
+            "/api/leads/followups": {
                 get: {
                     tags: ["FollowUps"],
                     security: [{ bearerAuth: [] }],
-                    summary: "List pending follow-ups",
+                    summary: "Lista Follow-ups Pendentes (para hoje ou vencidos)",
+                    description: "Retorna todos os follow-ups agendados para o vendedor autenticado que estão vencidos ou com data de vencimento no dia atual.",
+
+                    responses: {
+                        '200': {
+                            description: "Lista de follow-ups pendentes retornada com sucesso.",
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            message: { type: 'string' },
+                                            date: { type: 'array' },
+                                            items: { type: 'object' }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '401': {
+                            description: "Não autorizado (Token JWT ausente ou invalido)."
+                        },
+                        '500': { 
+                            description: "Erro interno do servidor"
+                        }
+                    }
                 },
             },
         },

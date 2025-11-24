@@ -44,4 +44,4 @@ route.post(
     authenticateToken,
     followUpController.logAndSchedule,
 );
-route.get("/api/followups", authenticateToken, followUpController.listPending);
+route.get("/api/leads/followups", authenticateToken, followUpController.getPedingFollowUps);

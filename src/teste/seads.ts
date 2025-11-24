@@ -20,17 +20,6 @@ async function main() {
         });
     }
 
-    await prisma.client.upsert({
-        where: { email: "Cliente.teste@empresa.com" },
-        update: {},
-        create: {
-            email: "Cliente.teste@empresa.com",
-            name: "Empresa Teste SA",
-            contactName: "Contato Teste",
-            phone: "5511987654321",
-        },
-    });
-
     console.log("População Concluida.");
 }
 

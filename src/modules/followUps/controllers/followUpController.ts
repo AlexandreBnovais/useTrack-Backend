@@ -8,9 +8,8 @@ class FollowUpController {
 
     constructor() {
         this.followUpService = new FollowUpService();
-
         this.logAndSchedule = this.logAndSchedule.bind(this);
-        this.listPending = this.listPending.bind(this);
+        this.getPedingFollowUps = this.getPedingFollowUps.bind(this);
     }
 
     /**
@@ -80,7 +79,7 @@ class FollowUpController {
         }
     }
 
-    async listPending(
+    async getPedingFollowUps(
         req: AuthenticatedRequest,
         res: Response,
     ): Promise<Response> {
