@@ -1,15 +1,11 @@
 #!/bin/sh
 # entrypoint.sh
 
-# 1. Aplicar as migrações salvas (prontas para deploy)
 echo "Rodando migrações do Prisma..."
-npx prisma migrate deploy
+npm run migrate:deploy # 1. Aplica as migrações (cria as tabelas)
 
-# 2. Executar o Seeder (para popular SalesFunnelStage, se necessário)
-# OBS: O seed deve ser idempotente (não deve duplicar dados)
 echo "Rodando o Seeder do Prisma..."
-npm run seed
+npm run seed # 2. Popula SalesFunnelStage (evita o erro P2003 de Lead)
 
-# 3. Iniciar o servidor (o comando original do package.json)
 echo "Iniciando o servidor..."
-npm start
+npm start # 3. Inicia o servidor Express

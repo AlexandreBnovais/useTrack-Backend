@@ -2,7 +2,7 @@ import type { User } from "@prisma/client";
 import { prisma } from "../../../shared/libs/prisma.js";
 import { hashPassword } from "../../../shared/utils/auth.js";
 
-type CreateUserInput = Omit<User, "id" | "createdAt" | "updatedAt">;
+type CreateUserInput = Omit<User, "id" | "role" | "createdAt" | "updatedAt">;
 type updateUserInput = Partial<User>;
 
 export class AuthenticationRepository {

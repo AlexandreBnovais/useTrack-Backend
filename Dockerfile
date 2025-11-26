@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-# Compila o TypeScript para JavaScript
+# Compila o TypeScript para JavaScript (gera a pasta 'build')
 RUN npm run build
 
 # Otimiza o Prisma para a arquitetura de produção
@@ -35,9 +35,8 @@ COPY prisma ./prisma
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Define o ENTRYPOINT para rodar o script
+# Define o PONTO DE ENTRADA: Executa migrações, seed e, finalmente, o 'npm start'
 ENTRYPOINT ["entrypoint.sh"] 
 
-# O CMD é a instrução padrão. Não é estritamente necessário se ENTRYPOINT for usado,
-# mas mantemos para clareza ou fallback. O ENTRYPOINT acima já inclui o 'npm start'.
+# O CMD é a instrução padrão. Não é estritamente necessário
 CMD ["npm", "start"]

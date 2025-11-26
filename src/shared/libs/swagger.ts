@@ -198,6 +198,87 @@ const swaggerDefinition = {
                 },
             },
 
+            "/profile/me": {
+                get: {
+                    summary: "Obtém dados do usuário logado",
+                    description: "Retorna o nome, email, cargo e outras informações visíveis do usuário autenticado.",
+                    tags: ["profile"],
+                    security: {
+                        bearerAuth: []
+                    },
+                    responses: {
+                        200: {
+                            description: 'Dados do usuário recuperados com sucesso.',
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            id: { type: 'string'},
+                                            name: { type: 'string'},
+                                            email: { type: 'string'},
+                                            role: { type: 'string' },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+
+                put: {
+                    summary: "Atualiza o perfil do usuário logado",
+                    description: "Permite que o usuário autenticado atualize seus dados",
+                    tags: ["profile"],
+                    security: {
+                        bearerAuth: []
+                    },
+                    requestBody: {
+                        required: true,
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        name: { 
+                                            type: 'string',
+                                            example: 'João Atualizado'
+                                        },
+                                        email: { 
+                                            type: 'string',
+                                            example: 'joão.atualizado@empresa.com'
+                                        },
+                                        password: {
+                                            type: "string",
+                                            description: "Opcional. Se fornecido, a senha será atualizada"
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    },
+                    responses: {
+                        200: {
+                            description: "Perfil atualizado com sucesso"
+                        }
+                    }
+                },
+
+                delete: {
+                    summary: "Deleta a conta do usuário logado",
+                    description: "Remove a conta do usuário autenticado",
+                    tags: ["profile"],
+                    security: {
+                        bearerAuth: []
+                    },
+                    responses: {
+                        204: {
+                            description: "conta deletada com sucesso (No content)."
+                        }
+                    }
+                }
+            },
+
             "/api/clientes": {
                 post: {
                     tags: ["Clients"],

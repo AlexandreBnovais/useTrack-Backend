@@ -5,8 +5,9 @@
     "main": "index.js",
     "scripts": {
         "start": "node ./build/server.js",
-        "seed": "node ./build/teste/seads.js",
         "build": "tsc",
+        "migrate:deploy": "prisma migrate deploy",
+        "seed": "node ./dist/seeds/seads.js",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,json}\""
     },
     "keywords": [],

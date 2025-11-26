@@ -1,3 +1,4 @@
+import { hashPassword } from "shared/utils/auth.js";
 import { prisma } from "../shared/libs/prisma.js";
 
 const FunnelStages = [
@@ -20,6 +21,23 @@ async function main() {
         });
     }
 
+
+    const ADMIN_ID = process.env.ADMIN_USER_ID;
+    if(ADMIN_ID) {
+        const adminUser = await prisma.user.upsert({ 
+            where: { id: ADMIN_ID},
+            update: {},
+            create: {
+                id: ADMIN_ID,
+                email: 'admin_default@system.com',
+                nome: 'System Admin',
+                role: 'ADMIN',
+                password: await hashPassword('admin_password')
+            }
+        });
+        console.log(`Usuário Admin de fallback criado/verificado: ${adminUser.id}`);
+    }
+    
     console.log("População Concluida.");
 }
 

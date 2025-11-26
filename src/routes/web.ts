@@ -6,6 +6,7 @@ import { authenticateToken } from "../shared/middlewares/AuthMiddleware.js";
 import clienteController from "../modules/clientes/controllers/clienteController.js";
 import leadController from "../modules/Leads/controllers/leadController.js";
 import followUpController from "../modules/followUps/controllers/followUpController.js";
+import ProfileController from '../modules/profile/controllers/user.controller.js';
 
 export const route = Router();
 
@@ -45,3 +46,14 @@ route.post(
     followUpController.logAndSchedule,
 );
 route.get("/api/leads/followups", authenticateToken, followUpController.getPedingFollowUps);
+
+// PROFILE
+
+// READ
+route.get('/profile/me', authenticateToken, ProfileController.getMe);
+
+// UPDATE
+route.put('/profile/me', authenticateToken, ProfileController.updateMe);
+
+// DELETE 
+route.delete('/profile/me', authenticateToken, ProfileController.deleteMe);
