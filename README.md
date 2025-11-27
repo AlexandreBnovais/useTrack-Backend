@@ -72,3 +72,121 @@ Depois gere o prisma client e a pasta ./dist
 ```
 npm run build
 ```
+
+
+# ===========================
+# 1. STAGE DE BUILD
+# ===========================
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Instala TODAS as dependências (incluindo dev)
+COPY package*.json ./
+RUN npm install
+
+# Copia prisma + src para gerar Prisma Client corretamente
+COPY prisma ./prisma
+COPY tsconfig.json ./
+COPY src ./src
+
+# Gera Prisma Client antes da build
+RUN npx prisma generate
+
+# Compila o TypeScript
+RUN npm run build
+
+
+
+# ===========================
+# 2. STAGE FINAL (PRODUÇÃO)
+# ===========================
+FROM node:20-alpine AS final
+
+ENV NODE_ENV=production
+ENV PORT=8000
+
+WORKDIR /app
+
+# Copia apenas os package.json para instalar somente prod
+COPY package*.json ./
+
+# Instala apenas dependências necessárias PARA PRODUÇÃO
+RUN npm install --omit=dev
+
+# Copia o código buildado
+COPY --from=build /app/build ./build
+
+# Copia Prisma Client gerado no build
+COPY --from=build /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copia schema Prisma (necessário para migrations em runtime)
+COPY --from=build /app/prisma ./prisma
+
+# Copia entrypoint (para migrations/seed antes do start)
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]
+
+# Comando padrão para iniciar a API
+CMD ["npm", "start"]
+
+
+
+### entrypoint
+
+#!/bin/sh
+set -e
+
+echo "🔄 Rodando Prisma Migrate..."
+npm run migrate:deploy
+
+if [ "$RUN_SEED" = "true" ]; then
+  echo "🌱 Rodando Seeds..."
+  npm run seed
+else
+  echo "🌱 Seed ignorado (defina RUN_SEED=true para ativar)"
+fi
+
+echo "🚀 Iniciando o servidor..."
+exec npm start
+
+
+### ENV
+RUN_SEED=true
+
+
+### server.js
+
+```ruby
+import { createServer } from "http";
+import { app } from "./app.js";
+import "dotenv/config";
+
+const server = createServer(app);
+
+// Railway/Render sempre enviam process.env.PORT
+const PORT = process.env.PORT || process.env.APP_PORT || 3000;
+
+// Deve sempre ser 0.0.0.0 em containers
+const HOST = "0.0.0.0";
+
+server.listen(PORT, HOST, () => {
+    console.log(`Server is running on http://${HOST}:${PORT}`);
+});
+
+process.on("SIGINT", () => {
+    console.log("server closing...");
+    server.close((err) => {
+        if (err) {
+            console.error("Error closing server", err);
+            process.exit(1);
+        }
+        console.log("Server closed");
+        process.exit(0);
+    });
+});
+
+```
