@@ -1,5 +1,5 @@
 import type { Client, Lead, Prisma } from "@prisma/client";
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 
 type CreateLeadData = Omit<Lead, "id" | "createdAt" | "updatedAt">;
 type updateLeadData = Partial<CreateLeadData>;

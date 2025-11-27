@@ -1,11 +1,23 @@
 #!/bin/sh
-# entrypoint.sh
+set -e
 
-echo "Rodando migrações do Prisma..."
-npm run migrate:deploy # 1. Aplica as migrações (cria as tabelas)
+echo "🔄 Aguardando conexão com o banco..."
 
-echo "Rodando o Seeder do Prisma..."
-npm run seed # 2. Popula SalesFunnelStage (evita o erro P2003 de Lead)
+# tenta conectar ao DB com retry
+until npx prisma db pull >/dev/null 2>&1; do
+  echo "⏳ Banco indisponível, tentando novamente..."
+  sleep 2
+done
 
-echo "Iniciando o servidor..."
-npm start # 3. Inicia o servidor Express
+echo "🔄 Rodando Prisma Migrate..."
+npm run migrate:deploy
+
+if [ "$RUN_SEED" = "true" ]; then
+  echo "🌱 Rodando Seeds..."
+  npm run seed
+else
+  echo "🌱 Seed ignorado (defina RUN_SEED=true para ativar)"
+fi
+
+echo "🚀 Iniciando o servidor..."
+exec npm start -- "$@"

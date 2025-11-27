@@ -1,6 +1,6 @@
 import type { Response } from "express";
-import { ProfileService } from "../services/user.service.js";
-import { type AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware.js";
+import { ProfileService } from "../services/user.service";
+import { type AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware";
 
 class ProfileController {
     private profileService: ProfileService;

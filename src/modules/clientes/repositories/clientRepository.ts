@@ -1,4 +1,4 @@
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 import type { Client } from "@prisma/client";
 
 type CreateClientData = Pick<

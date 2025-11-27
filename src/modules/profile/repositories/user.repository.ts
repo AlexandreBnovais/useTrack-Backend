@@ -1,5 +1,5 @@
-import { hashPassword } from "../../../shared/utils/auth.js";
-import { prisma } from "../../../shared/libs/prisma.js";
+import { hashPassword } from "../../../shared/utils/auth";
+import { prisma } from "../../../shared/libs/prisma";
 import type { Prisma, User } from "@prisma/client";
 
 type CreateUserInput = Prisma.UserCreateInput;

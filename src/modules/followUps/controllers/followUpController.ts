@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { FollowUpService } from "../services/followUpService.js";
-import type { AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware.ts";
-import type { LogInteractionBody } from "../../../shared/domains/followupContract.ts";
+import { FollowUpService } from "../services/followUpService";
+import type { AuthenticatedRequest } from "../../../shared/middlewares/AuthMiddleware";
+import type { LogInteractionBody } from "../../../shared/domains/followupContract";
 
 class FollowUpController {
     private followUpService: FollowUpService;

@@ -1,6 +1,6 @@
 import type { Prisma, User } from "@prisma/client";
-import { UserRepository } from "../repositories/user.repository.js";
-import { prisma } from "../../../shared/libs/prisma.js";
+import { UserRepository } from "../repositories/user.repository";
+import { prisma } from "../../../shared/libs/prisma";
 import 'dotenv/config';
 
 type CreateUserInput = Prisma.UserCreateInput;

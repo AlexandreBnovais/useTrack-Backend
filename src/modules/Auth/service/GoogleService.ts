@@ -1,10 +1,10 @@
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 import {
     generateAccessToken,
     generateRefreshToken,
-} from "../../../shared/utils/auth.js";
-import { GoogleAuthClient } from "../../../shared/utils/googleAuth.js";
-import { GoogleRepository } from "../repositories/GoogleRepository.js";
+} from "../../../shared/utils/auth";
+import { GoogleAuthClient } from "../../../shared/utils/googleAuth";
+import { GoogleRepository } from "../repositories/GoogleRepository";
 
 export class GoogleAuthService {
     private GoogleClient: GoogleAuthClient;

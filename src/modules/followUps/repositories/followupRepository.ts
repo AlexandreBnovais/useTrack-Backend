@@ -1,4 +1,4 @@
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 import type { FollowUp, PrismaClient } from "@prisma/client";
 
 type TransactionClient =

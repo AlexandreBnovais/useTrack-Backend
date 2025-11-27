@@ -8,22 +8,18 @@
     "baseUrl": "./src",
 
     "lib": [
-      "es2024",
-      "ESNext.Array",
-      "ESNext.Collection",
-      "ESNext.Iterator",
-      "ESNext.Promise"
+      "es2020",
     ],
 
-    "module": "nodenext",
-    "target": "esnext",
+    "module": "commonjs",
+    "target": "es2020",
+    "moduleResolution": "node",
     
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "skipLibCheck": true,
-    "moduleResolution": "nodenext"
   },
 
     "include": [

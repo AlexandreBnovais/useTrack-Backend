@@ -1,12 +1,12 @@
 import { Router } from "express";
 
-import Auth from "../modules/Auth/controllers/AuthenticateController.js";
-import GoogleAuth from "../modules/Auth/controllers/GoogleController.js";
-import { authenticateToken } from "../shared/middlewares/AuthMiddleware.js";
-import clienteController from "../modules/clientes/controllers/clienteController.js";
-import leadController from "../modules/Leads/controllers/leadController.js";
-import followUpController from "../modules/followUps/controllers/followUpController.js";
-import ProfileController from '../modules/profile/controllers/user.controller.js';
+import Auth from "../modules/Auth/controllers/AuthenticateController";
+import GoogleAuth from "../modules/Auth/controllers/GoogleController";
+import { authenticateToken } from "../shared/middlewares/AuthMiddleware";
+import clienteController from "../modules/clientes/controllers/clienteController";
+import leadController from "../modules/Leads/controllers/leadController";
+import followUpController from "../modules/followUps/controllers/followUpController";
+import ProfileController from '../modules/profile/controllers/user.controller';
 
 export const route = Router();
 

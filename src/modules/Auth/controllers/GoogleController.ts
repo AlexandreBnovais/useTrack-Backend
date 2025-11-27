@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { GoogleAuthService } from "../service/GoogleService.js";
+import { GoogleAuthService } from "../service/GoogleService";
 
 class GoogleAuthController {
     private serviceAuthGoogle: GoogleAuthService;

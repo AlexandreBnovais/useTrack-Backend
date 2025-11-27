@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { AuthenticationService } from "../service/AuthenticationService.js";
-import { AuthenticationRepository } from "../repositories/AuthenticateRepository.js";
+import { AuthenticationService } from "../service/AuthenticationService";
+import { AuthenticationRepository } from "../repositories/AuthenticateRepository";
 import "dotenv/config";
 
 class AuthenticationController {

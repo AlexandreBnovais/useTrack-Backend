@@ -1,42 +1,57 @@
-# 1. FASE DE BUILD: Compilação do TypeScript e Geração do Prisma Client
+#############################################
+# 1. STAGE DE BUILD
+#############################################
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Copia apenas os arquivos essenciais primeiro para cache
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+COPY prisma ./prisma
+COPY tsconfig.json ./
+COPY src ./src
 
-# Compila o TypeScript para JavaScript (gera a pasta 'build')
-RUN npm run build
-
-# Otimiza o Prisma para a arquitetura de produção
+# Gera Prisma Client antes da build
 RUN npx prisma generate
 
-# 2. FASE DE PRODUÇÃO: Imagem final, mais leve e segura
+# Compila o TypeScript
+RUN npm run build
+
+
+
+#############################################
+# 2. STAGE FINAL (PRODUÇÃO)
+#############################################
 FROM node:20-alpine AS final
 
 ENV NODE_ENV=production
-ENV PORT=8000
+ENV PORT=3000
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --only=production
 
-# Copia código compilado, Prisma Client e schema
+# Instala apenas dependências de produção
+RUN npm install --omit=dev
+
+# Copia código compilado
 COPY --from=build /app/build ./build
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/node_modules/@prisma/client ./node_modules/@prisma/client
-COPY prisma ./prisma
 
-# Copia o script de entrada e o torna executável
+# Copia Prisma Client
+COPY --from=build /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copia schema Prisma (para migrations/seed)
+COPY --from=build /app/prisma ./prisma
+
+# Entrypoint
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Define o PONTO DE ENTRADA: Executa migrações, seed e, finalmente, o 'npm start'
-ENTRYPOINT ["entrypoint.sh"] 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# O CMD é a instrução padrão. Não é estritamente necessário
-CMD ["npm", "start"]
+EXPOSE 3000
+
+CMD ["node", "build/server.js"]

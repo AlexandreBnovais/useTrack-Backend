@@ -1,12 +1,12 @@
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 import {
     comparePassword,
     generateAccessToken,
     generateRefreshToken,
     verifyToken,
-} from "../../../shared/utils/auth.js";
-import { AuthenticationSchema } from "../../../shared/validators/AuthenticationSchema.js";
-import { AuthenticationRepository } from "../repositories/AuthenticateRepository.js";
+} from "../../../shared/utils/auth";
+import { AuthenticationSchema } from "../../../shared/validators/AuthenticationSchema";
+import { AuthenticationRepository } from "../repositories/AuthenticateRepository";
 
 export class AuthenticationService {
     private AuthRepository: AuthenticationRepository;

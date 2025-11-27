@@ -1,5 +1,5 @@
 import type { GoogleUser } from "@prisma/client";
-import { prisma } from "../../../shared/libs/prisma.js";
+import { prisma } from "../../../shared/libs/prisma";
 
 type GoogleUserinput = Omit<
     GoogleUser,

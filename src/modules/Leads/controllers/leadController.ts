@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
-import { LeadService } from "../services/leadService.js";
+import { LeadService } from "../services/leadService";
 import type {
     changeStageBody,
     CreateLeadBody,
     UpdateLeadBody,
-} from "../../../shared/domains/leadContract.ts";
+} from "../../../shared/domains/leadContract";
 import type {
     AuthenticatedRequest,
     ListLeadsQuery,
-} from "../../../shared/middlewares/AuthMiddleware.ts";
+} from "../../../shared/middlewares/AuthMiddleware";
 
 class LeadController {
     private leadService: LeadService;

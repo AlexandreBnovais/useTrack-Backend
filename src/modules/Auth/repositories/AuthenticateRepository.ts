@@ -1,6 +1,6 @@
 import type { User } from "@prisma/client";
-import { prisma } from "../../../shared/libs/prisma.js";
-import { hashPassword } from "../../../shared/utils/auth.js";
+import { prisma } from "../../../shared/libs/prisma";
+import { hashPassword } from "../../../shared/utils/auth";
 
 type CreateUserInput = Omit<User, "id" | "role" | "createdAt" | "updatedAt">;
 type updateUserInput = Partial<User>;

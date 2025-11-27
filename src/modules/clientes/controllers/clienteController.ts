@@ -1,10 +1,10 @@
 // src/modules/clients/client.controller.ts
 import type { Request, Response } from "express";
-import { ClientService } from "../services/clientService.js";
+import { ClientService } from "../services/clientService";
 import type {
     CreateClientBody,
     UpdateClientBody,
-} from "../../../shared/domains/ClientContract.ts";
+} from "../../../shared/domains/ClientContract";
 
 class ClientController {
     private clientService: ClientService;
