@@ -1,0 +1,5 @@
+# Garantir que o Dockerfile use LF 
+Dockerfile text eol=lf
+
+# Garantir que o entrypoint.sh permaneça LF
+entrypoint.sh text eol=lf
