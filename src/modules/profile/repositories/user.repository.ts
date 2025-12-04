@@ -3,7 +3,7 @@ import { prisma } from "../../../shared/libs/prisma";
 import type { Prisma, User } from "@prisma/client";
 
 type CreateUserInput = Prisma.UserCreateInput;
-type UserUpdateInput = Prisma.UserUpdateInput;
+type UserUpdateInput = Partial<Prisma.UserUpdateInput>;
 
 export class UserRepository { 
     async findById(id: string): Promise<CreateUserInput | null> {

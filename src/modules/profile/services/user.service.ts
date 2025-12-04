@@ -2,9 +2,10 @@ import type { Prisma, User } from "@prisma/client";
 import { UserRepository } from "../repositories/user.repository";
 import { prisma } from "../../../shared/libs/prisma";
 import 'dotenv/config';
+import { hashPassword } from "../../../shared/utils/auth";
 
 type CreateUserInput = Prisma.UserCreateInput;
-type UserUpdateInput = Prisma.UserUpdateInput;
+type UserUpdateInput = Partial<Prisma.UserUpdateInput>;
 
 export class ProfileService {
     private userRepository: UserRepository;
@@ -26,6 +27,10 @@ export class ProfileService {
     async updateProfile(userId: string, updateDate: UserUpdateInput): Promise<User> {
         if(updateDate.id || updateDate.role) {
             throw new Error("Não é permitido alterar ID ou cargo por essa rota.");
+        }
+
+        if(updateDate.password) {
+            updateDate.password = await hashPassword(updateDate.password as string);
         }
 
         return this.userRepository.update(userId, updateDate);
