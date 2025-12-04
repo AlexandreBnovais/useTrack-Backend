@@ -7,6 +7,7 @@ type UpdateLeadInput = Partial<{
     value: number;
     sellerId: string;
     clientId: string;
+    clientEmail: string;
 }>;
 
 type TransactionClient = PrismaClient | any;
@@ -77,11 +78,25 @@ export class LeadService {
     }
 
     async updateLead(id: string, data: UpdateLeadInput): Promise<Lead> {
-        if (Object.keys(data).length === 0) {
+        const { clientEmail, ...updateData} = data
+
+        if (Object.keys(updateData).length === 0 && !clientEmail) {
             throw new Error("Nenhum dado fornecido para atualização.");
         }
 
-        return this.repository.update(id, data);
+        if(clientEmail) {
+            const client = await prisma.client.findUnique({ 
+                where: { email: clientEmail },
+            });
+
+            if(!client ){ 
+                throw new Error(`Cliente com email ${clientEmail} não encontrado`);
+            }
+
+            updateData.clientId = client.id;
+        }
+
+        return this.repository.update(id, updateData);
     }
 
     async deleteLead(id: string) {
@@ -99,7 +114,7 @@ export class LeadService {
         return this.repository.update(leadId, { stageId: newStageId });
     }
 
-    async setNextFollowUpDate(leadId: string, nextDate: Date): Promise<Lead> {
+    async setNextFollowUpDate(leadId: string, nextDate: Date | null): Promise<Lead> {
         return this.repository.update(leadId, { nextFollowUpDate: nextDate });
     }
 }

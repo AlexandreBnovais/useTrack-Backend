@@ -5,6 +5,7 @@ import type {
     CreateClientBody,
     UpdateClientBody,
 } from "../../../shared/domains/ClientContract";
+import { AuthenticatedRequest } from "shared/middlewares/AuthMiddleware";
 
 class ClientController {
     private clientService: ClientService;
@@ -24,10 +25,11 @@ class ClientController {
      * Cria clientes
      */
     async create(
-        req: Request<{}, {}, CreateClientBody>,
+        req: AuthenticatedRequest<{}, {}, CreateClientBody>,
         res: Response,
     ): Promise<Response> {
         try {
+            const sellerId = req.userId as string;
             const { email, name, contactName, phone } = req.body;
 
             if (!email || !name) {
@@ -41,6 +43,7 @@ class ClientController {
                 email,
                 phone,
                 contactName,
+                sellerId
             });
 
             return res.status(201).json(newClient);
@@ -60,9 +63,15 @@ class ClientController {
      * GET /api/clients
      * Lista todos os clientes.
      */
-    async list(req: Request, res: Response): Promise<Response> {
+    async list(req: AuthenticatedRequest, res: Response): Promise<Response> {
         try {
-            const clients = await this.clientService.getClientes();
+            const sellerId = req.userId as string;
+
+            if (!sellerId) {
+                return res.status(401).json({ message: "Vendedor não autenticado." });
+            }
+
+            const clients = await this.clientService.getClientes(sellerId);
             return res.status(200).json(clients);
         } catch (error) {
             console.error("Erro ao listar clientes:", error);
@@ -81,13 +90,20 @@ class ClientController {
      * Busca um cliente por ID.
      */
     async getById(
-        req: Request<{ id: string }>,
+        req: AuthenticatedRequest<{ id: string }>,
         res: Response,
     ): Promise<Response> {
         try {
+            const sellerId = req.userId as string;
             const { id } = req.params;
-            const client = await this.clientService.getClientById(id);
+
+            if (!sellerId) {
+                return res.status(401).json({ message: "Vendedor não autenticado." });
+            }
+
+            const client = await this.clientService.getClientById(id, sellerId);
             return res.status(200).json(client);
+
         } catch (error) {
             console.error("Erro ao buscar cliente:", error);
             if (error instanceof Error) {
@@ -110,15 +126,21 @@ class ClientController {
      * Atualiza dados de um cliente.
      */
     async update(
-        req: Request<{ id: string }, {}, UpdateClientBody>,
+        req: AuthenticatedRequest<{ id: string }, {}, UpdateClientBody>,
         res: Response,
     ): Promise<Response> {
         try {
+            const sellerId = req.userId as string;
             const { id } = req.params;
             const updateData = req.body;
 
+            if (!sellerId) {
+                return res.status(401).json({ message: "Vendedor não autenticado." });
+            }
+            
             const updatedClient = await this.clientService.updateClient(
                 id,
+                sellerId,
                 updateData,
             );
 
@@ -148,13 +170,18 @@ class ClientController {
      * Deleta um cliente com checagem de Leads ativas.
      */
     async delete(
-        req: Request<{ id: string }>,
+        req: AuthenticatedRequest<{ id: string }>,
         res: Response,
     ): Promise<Response> {
         try {
+            const sellerId = req.userId as string;
             const { id } = req.params;
 
-            await this.clientService.deleteClient(id);
+            if (!sellerId) {
+                return res.status(401).json({ message: "Vendedor não autenticado." });
+            }
+
+            await this.clientService.deleteClient(id, sellerId);
 
             return res.status(204).send(); // 204 No Content
         } catch (error) {

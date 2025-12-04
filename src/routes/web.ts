@@ -7,6 +7,7 @@ import clienteController from "../modules/clientes/controllers/clienteController
 import leadController from "../modules/Leads/controllers/leadController";
 import followUpController from "../modules/followUps/controllers/followUpController";
 import ProfileController from '../modules/profile/controllers/user.controller';
+import stageController from "../modules/stages/controllers/stageController";
 
 export const route = Router();
 
@@ -45,7 +46,13 @@ route.post(
     authenticateToken,
     followUpController.logAndSchedule,
 );
-route.get("/api/leads/followups", authenticateToken, followUpController.getPedingFollowUps);
+route.get('/api/followups/:followUpId', authenticateToken, followUpController.getFollowUpById);
+route.put('/api/followups/:followUpId', authenticateToken, followUpController.updateFollowUp);
+route.delete('/api/followups/:followUpId', authenticateToken, followUpController.deleteManyFollowUps)
+route.get("/api/leads/:leadId/followups/history", authenticateToken, followUpController.getPendingFollowUps);
+
+// STAGES
+route.get('/api/stages',authenticateToken, stageController.findAllStages);
 
 // PROFILE
 

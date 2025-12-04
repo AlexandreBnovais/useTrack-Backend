@@ -1,4 +1,4 @@
-import { FollowUpRepository } from "../repositories/followupRepository";
+import { FollowUpRepository, UpdateFollowUpData } from "../repositories/followupRepository";
 import { LeadService } from "../../Leads/services/leadService";
 import type { FollowUp } from "@prisma/client";
 import { prisma } from "../../../shared/libs/prisma";
@@ -6,6 +6,28 @@ import { prisma } from "../../../shared/libs/prisma";
 export class FollowUpService {
     private repository: FollowUpRepository;
     private leadService: LeadService;
+    private async syncLeadNextFollowUpDate(leadId: string): Promise<void> {
+        // 1. Encontra o Follow-up pendente com a data mais antiga (próxima)
+        const latestNextAction = await prisma.followUp.findFirst({
+            where: { 
+                leadId: leadId,
+                isCompleted: false,
+                data: {
+                    gte: new Date() // Apenas datas futuras
+                }
+            },
+            orderBy: { data: 'asc' }, // Ação mais próxima
+            select: { data: true }
+        });
+
+        const nextDate = latestNextAction ? latestNextAction.data : null;
+        
+        // 2. Atualiza a Lead
+        await prisma.lead.update({
+            where: { id: leadId },
+            data: { nextFollowUpDate: nextDate }
+        });
+    }
 
     constructor() {
         this.leadService = new LeadService();
@@ -16,9 +38,9 @@ export class FollowUpService {
         leadId: string,
         registeredById: string,
         interactionNotes: string,
-        nextActionDate: Date,
+        nextActionDate: Date | null,
         nextActionNotes: string,
-    ): Promise<{ log: FollowUp; next: FollowUp }> {
+    ): Promise<{ log: FollowUp; next: FollowUp | null }> {
         const lead = await this.leadService.getLeadById(leadId);
         if (!lead) {
             throw new Error(`Lead com ID ${leadId} não encontrado.`);
@@ -44,16 +66,19 @@ export class FollowUpService {
                         isCompleted: true,
                     },
                 });
+                let nextFollowUp = null;
+                if(nextActionDate) {
+                    nextFollowUp = await tx.followUp.create({
+                        data: {
+                            leadId,
+                            registeredById,
+                            notes: `[PRÓXIMA AÇÃO] ${nextActionNotes}`,
+                            data: nextActionDate,
+                            isCompleted: false,
+                        },
+                    });
+                }
 
-                const nextFollowUp = await tx.followUp.create({
-                    data: {
-                        leadId,
-                        registeredById,
-                        notes: `[PRÓXIMA AÇÃO] ${nextActionNotes}`,
-                        data: nextActionDate,
-                        isCompleted: false,
-                    },
-                });
 
                 await tx.lead.update({
                     where: { id: leadId },
@@ -70,7 +95,51 @@ export class FollowUpService {
         }
     }
 
-    async getPendingFollowUps(sellerId: string): Promise<FollowUp[]> {
-        return this.repository.findPendingBySeller(sellerId);
+    async findById(followUpId: string, sellerId: string) {
+        const followUp = await this.repository.findOne(followUpId, sellerId);
+
+        if(!followUp) {
+            throw new Error(`Follow-up ID ${followUpId} não encontrado.`);
+        }
+
+        return followUp;
     }
+
+    async getPendingFollowUps(sellerId: string): Promise<FollowUp[]> {
+        return this.repository.findPendingBySeller(sellerId)
+    }
+
+    async findPendingBySellerAndLead(sellerId: string, leadId: string) {
+        return this.repository.findPendingBySellerAndLead(sellerId, leadId);
+    }
+
+    async update(followUpId: string, updateData: UpdateFollowUpData, sellerId: string): Promise<FollowUp> {
+        const result = await this.repository.update(
+            { followUpId, sellerId },
+            updateData
+        )
+
+        if(result.count === 0) {
+            throw new Error(`Follow-up ID ${followUpId} não encontrado ou não pertence ao vendedor.`);
+        }
+
+        const updatedFup = await this.findById(followUpId, sellerId);
+        await this.syncLeadNextFollowUpDate(updatedFup.leadId);
+
+        return updatedFup;
+    }
+
+    async deleteFollowUp(id: string, sellerId: string) {
+        const fupToDelete = await this.findById(id, sellerId); // Usa a busca segura para garantir posse
+        const leadId = fupToDelete.leadId;
+
+        const result = await this.repository.delete(id, sellerId);
+
+        if (result.count === 0) {
+            // Este erro é improvável se findById não falhou, mas mantemos
+            throw new Error(`Follow-up ID ${id} não encontrado ou não pertence ao vendedor.`);
+        }
+        await this.syncLeadNextFollowUpDate(leadId);
+        return result
+    };
 }

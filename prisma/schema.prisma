@@ -27,6 +27,7 @@ model User {
     // Relacionamento com leads - 1:N
     leads Lead[]
     followUps FollowUp[]
+    clients Client[]
 
     createdAt DateTime  @default(now())
     updatedAt  DateTime  @updatedAt
@@ -74,6 +75,9 @@ model Client {
     email String @unique
     phone String?
 
+    sellerId String?
+
+    seller User? @relation(fields: [sellerId], references: [id])
     // Relaciona 1:N entre clientes e leads
     leads Lead[]
 
@@ -125,6 +129,8 @@ model FollowUp {
     notes String
     data DateTime @default(now())
     isCompleted Boolean @default(false)
+
+    updatedAt DateTime? @updatedAt
 
     lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
     leadId String     

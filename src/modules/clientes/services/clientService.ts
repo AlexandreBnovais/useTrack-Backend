@@ -21,6 +21,7 @@ export class ClientService {
         email: string;
         contactName: string;
         phone: string;
+        sellerId: string;
     }): Promise<Client> {
         const existingClient = await this.repository.findByEmail(data.email);
         if (existingClient) {
@@ -31,19 +32,19 @@ export class ClientService {
         return this.repository.create(data);
     }
 
-    async getClientes(): Promise<Client[]> {
-        return this.repository.findAll();
+    async getClientes(sellerId: string): Promise<Client[]> {
+        return this.repository.findAll(sellerId);
     }
 
-    async getClientById(id: string): Promise<Client> {
-        const client = await this.repository.findById(id);
+    async getClientById(id: string, sellerId: string): Promise<Client> {
+        const client = await this.repository.findById(id, sellerId);
         if (!client) {
             throw new Error(`Cliente com ID ${id} não encontrado`);
         }
         return client;
     }
 
-    async updateClient(id: string, data: UpdateClientInput): Promise<Client> {
+    async updateClient(id: string,sellerId: string, data: UpdateClientInput): Promise<Client> {
         if (Object.keys(data).length === 0) {
             throw new Error("Nenhum dado fornecido para atualização.");
         }
@@ -52,20 +53,22 @@ export class ClientService {
             const existingClient = await this.repository.findByEmail(
                 data.email,
             );
-            if (existingClient) {
+            
+            if (existingClient && existingClient.id !== id) {
                 throw new Error(
                     `O email ${data.email} já está em uso por outro cliente.`,
                 );
             }
         }
 
-        return this.repository.update(id, data);
+        return this.repository.update(id, sellerId, data);
     }
 
-    async deleteClient(id: string): Promise<Client> {
+    async deleteClient(id: string, sellerId: string): Promise<Client> {
         const activeLeadsCount = await prisma.lead.count({
             where: {
                 clientId: id,
+                sellerId: sellerId,
                 stage: {
                     isClosed: false,
                 },
@@ -78,7 +81,7 @@ export class ClientService {
             );
         }
         try {
-            return this.repository.delete(id);
+            return this.repository.delete(id, sellerId);
         } catch (err: any) {
             if (err.code === "P2025") {
                 throw new Error(
