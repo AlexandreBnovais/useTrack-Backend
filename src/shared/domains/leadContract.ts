@@ -7,12 +7,13 @@ export interface CreateLeadBody {
 }
 
 export interface changeStageBody {
-    newStageId: number;
+    stageId?: number;
 }
 
 export interface UpdateLeadBody {
     title?: string;
     value?: number;
     sellerId?: string;
-    clientId?: string;
+    clientEmail?: string;
+    stageId?: number;
 }

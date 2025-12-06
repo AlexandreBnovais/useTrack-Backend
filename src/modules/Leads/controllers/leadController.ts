@@ -21,7 +21,7 @@ class LeadController {
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
-        this.changeStage = this.changeStage.bind(this);
+        this.updateStage = this.updateStage.bind(this);
     }
 
     // POST /api/leads
@@ -103,11 +103,6 @@ class LeadController {
             });
         }
     }
-
-    /**
-     * PUT /api/leads/:id/stage
-     * Atualiza o estagio de um lead
-     */
 
     /**
      * GET /api/leads/:id
@@ -209,30 +204,62 @@ class LeadController {
         }
     }
 
-    async changeStage(
+    async updateStage(
         req: Request<{ id: string }, {}, changeStageBody>,
         res: Response,
     ): Promise<Response> {
         try {
             const { id } = req.params;
-            const { newStageId } = req.body;
+            const { stageId } = req.body;
 
-            if (!newStageId) {
+            if (!stageId) {
                 return res
                     .status(400)
                     .json({ message: "O ID do novo estágio é obrigatorio." });
             }
+            
+            const stageIdNum = typeof stageId === 'string' ? parseInt(stageId, 10) : stageId;
 
-            const updateLead = await this.leadService.changeStage(
+            if(isNaN(stageIdNum)) {
+                return res 
+                    .status(400)
+                    .json({
+                        message: "O ID do novo estágio deve ser um número valido"
+                    })
+            }
+
+            const updateLead = await this.leadService.updateLead(
                 id,
-                newStageId,
+                { stageId: stageIdNum }
             );
 
             return res.status(200).json(updateLead);
+
         } catch (err) {
-            console.error(err);
+            const errorMessage = (err as Error).message;
+        
+            console.error(err); // Mantenha o log completo para depuração
+
+            if(errorMessage.includes("Nenhum dado forncecido para atualização."))
+
+            // Trata erros específicos da camada de serviço (Lead ou Estágio não encontrados)
+            if (errorMessage.includes("Lead não encontrado") || errorMessage.includes("Estágio com ID") && errorMessage.includes("não encontrado")) {
+                // 404 para entidades não encontradas
+                return res.status(404).json({
+                    message: errorMessage,
+                });
+            }
+            
+            // Se for um erro de validação (embora o service layer já trate newStageId), 400
+            if (errorMessage.includes("obrigatorio")) {
+                return res.status(400).json({
+                    message: errorMessage,
+                });
+            }
+
+            // Erro genérico para falhas internas inesperadas (database connection, crash, etc.)
             return res.status(500).json({
-                message: "Erro interno ao mudar estagio",
+                message: "Erro interno ao mudar estágio",
             });
         }
     }

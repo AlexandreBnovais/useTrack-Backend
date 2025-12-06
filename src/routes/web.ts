@@ -36,7 +36,7 @@ route.put("/api/leads/:id", authenticateToken, leadController.update);
 route.put(
     "/api/leads/:id/stage",
     authenticateToken,
-    leadController.changeStage,
+    leadController.updateStage,
 );
 route.delete("/api/leads/:id", authenticateToken, leadController.delete);
 

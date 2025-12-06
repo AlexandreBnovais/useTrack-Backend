@@ -8,9 +8,8 @@ type UpdateLeadInput = Partial<{
     sellerId: string;
     clientId: string;
     clientEmail: string;
+    stageId: number;
 }>;
-
-type TransactionClient = PrismaClient | any;
 
 export class LeadService {
     private repository: LeadRepository;
@@ -78,9 +77,9 @@ export class LeadService {
     }
 
     async updateLead(id: string, data: UpdateLeadInput): Promise<Lead> {
-        const { clientEmail, ...updateData} = data
+        const { clientEmail, stageId, ...updateData} = data
 
-        if (Object.keys(updateData).length === 0 && !clientEmail) {
+        if (Object.keys(updateData).length === 0 && !clientEmail && !stageId) {
             throw new Error("Nenhum dado fornecido para atualização.");
         }
 
@@ -96,7 +95,17 @@ export class LeadService {
             updateData.clientId = client.id;
         }
 
-        return this.repository.update(id, updateData);
+        if(stageId) {
+            const newStage = await prisma.salesFunnelStage.findUnique({ 
+                where: { id: stageId }
+            });
+
+            if(!newStage) {
+                throw new Error(`Estagio com o ID ${stageId} não encontrado. Não é possível movea Lead`)
+            }
+        }
+
+        return this.repository.update(id, { stageId, ...updateData});
     }
 
     async deleteLead(id: string) {
@@ -104,15 +113,23 @@ export class LeadService {
         return deletedLead;
     }
 
-    async changeStage(leadId: string, newStageId: number): Promise<Lead> {
-        const lead = await this.repository.findById(leadId);
+    // async changeStage(leadId: string, newStageId: number): Promise<Lead> {
+    //     const lead = await this.repository.findById(leadId);
 
-        if (!lead) {
-            throw new Error("Lead não encontrado.");
-        }
+    //     if (!lead) {
+    //         throw new Error("Lead não encontrado.");
+    //     }
 
-        return this.repository.update(leadId, { stageId: newStageId });
-    }
+    //     const newStage = await prisma.salesFunnelStage.findUnique({ 
+    //         where: { id: newStageId},
+    //     })
+
+    //     if( !newStage ) {
+    //         throw new Error(`Estagio com ID ${newStageId} não encontrado. Não é possível mover a Lead`);
+    //     }
+
+    //     return this.repository.update(leadId, { stageId: newStageId });
+    // }
 
     async setNextFollowUpDate(leadId: string, nextDate: Date | null): Promise<Lead> {
         return this.repository.update(leadId, { nextFollowUpDate: nextDate });
